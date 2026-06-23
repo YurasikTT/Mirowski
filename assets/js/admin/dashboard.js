@@ -4,8 +4,8 @@
 ================================================================ */
 (async () => {
 
-  /* ── Config — must match Code.gs ── */
-  const API_URL   = ''; // Your Apps Script Web App URL
+  /* ── Config — must match backend.gs ── */
+  const API_URL   = 'https://script.google.com/macros/s/AKfycbwxP6ouOnpLDH4luOUiqeZ_cK2yP8o41uEki-l8yJ8Nt1iCi5YVNlHEutve0WwTGnLVLg/exec';
   const ADMIN_KEY = 'MIR_ADMIN_2025';
 
   /* ── DOM ── */
@@ -192,7 +192,7 @@
     }).join('');
 
     tbody.querySelectorAll('[data-action]').forEach(btn => {
-      btn.addEventListener('click', () => handleAction(btn.dataset.id, btn.dataset.action));
+      btn.addEventListener('click', () => handleAction(btn.dataset.id, btn.dataset.action, btn));
     });
   }
 
@@ -210,14 +210,32 @@
   /* ================================================================
      ACTIONS
   ================================================================ */
-  async function handleAction(id, newStatus) {
+  async function handleAction(id, newStatus, triggerBtn) {
+    /* Disable button to prevent double-submit */
+    if (triggerBtn) { triggerBtn.disabled = true; triggerBtn.classList.add('is-loading'); }
+
     try {
       const res = await api('POST', { action:'updateStatus', id, status:newStatus, key:adminKey });
-      if (res.success) {
+
+      if (res && res.success) {
         const bk = allBookings.find(b => b.id === id);
-        if (bk) { bk.status = newStatus; updateStats(); renderTable(); stamp(); }
+        if (bk) {
+          bk.status = newStatus;
+          updateStats();
+          renderTable();
+          stamp();
+        }
+        toast('Zaktualizowano status.', 'ok');
+      } else {
+        const msg = res?.error || 'Serwer odrzucił żądanie.';
+        toast('Błąd: ' + msg, 'err');
+        /* Re-enable button on failure so user can retry */
+        if (triggerBtn) { triggerBtn.disabled = false; triggerBtn.classList.remove('is-loading'); }
       }
-    } catch { /* silent */ }
+    } catch (err) {
+      toast('Błąd połączenia: ' + (err.message || 'nieznany błąd'), 'err');
+      if (triggerBtn) { triggerBtn.disabled = false; triggerBtn.classList.remove('is-loading'); }
+    }
   }
 
   /* ── Refresh button ── */
@@ -228,6 +246,201 @@
       if (res.bookings) { allBookings = res.bookings; updateStats(); renderTable(); stamp(); }
     } catch { /* silent */ }
   });
+
+  /* ================================================================
+     TAB SWITCHING
+  ================================================================ */
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      const tab = btn.dataset.tab;
+      document.getElementById('panel-bookings')?.classList.toggle('is-hidden', tab !== 'bookings');
+      document.getElementById('panel-barbers')?.classList.toggle('is-hidden', tab !== 'barbers');
+      if (tab === 'barbers' && !_barbersLoaded) loadBarbers();
+    });
+  });
+
+  /* ================================================================
+     BARBERS MANAGEMENT
+  ================================================================ */
+  const SERVICES_LIST = [
+    { id:'s1', name:'Strzyżenie klasyczne' }, { id:'s2', name:'Stylizacja brody' },
+    { id:'s3', name:'Strzyżenie + Broda' },   { id:'s4', name:'Golenie brzytwą' },
+    { id:'s5', name:'Strzyżenie maszynką' },  { id:'s6', name:'Full Package' },
+  ];
+
+  let _allBarbers   = [];
+  let _barbersLoaded = false;
+  let _editingId    = null;
+
+  async function loadBarbers() {
+    _barbersLoaded = true;
+    try {
+      const res = await api('POST', { action: 'getBarbers', key: adminKey });
+      _allBarbers = res?.barbers || [];
+    } catch { _allBarbers = []; }
+    renderBarbers();
+  }
+
+  function renderBarbers() {
+    const grid = document.getElementById('barbers-grid');
+    if (!grid) return;
+    if (!_allBarbers.length) {
+      grid.innerHTML = '<p style="color:var(--muted);padding:24px 0">Brak barberów. Dodaj pierwszego.</p>';
+      return;
+    }
+    grid.innerHTML = _allBarbers.map(b => {
+      const av = b.avatar
+        ? `<img src="${esc(b.avatar)}" alt="${esc(b.name)}" class="bc-avatar">`
+        : `<div class="bc-avatar bc-avatar--placeholder">&#9986;</div>`;
+      const activeBadge = b.active ? '' : '<span class="badge badge--cancelled">Nieaktywny</span>';
+      const svcCount = b.services ? b.services.split(',').filter(Boolean).length : 0;
+      return `<div class="barber-card" data-id="${esc(b.id)}">
+        ${av}
+        <div class="bc-body">
+          <div class="bc-name">${esc(b.name)} ${activeBadge}</div>
+          <div class="bc-spec">${esc(b.spec)}</div>
+          <div class="bc-meta">${svcCount} usług · ${b.availability ? b.availability.split(',').length : 0} dni</div>
+        </div>
+        <div class="bc-actions">
+          <button class="adm-btn adm-btn--sm adm-btn--ghost bc-edit" data-id="${esc(b.id)}">Edytuj</button>
+          <button class="adm-btn adm-btn--sm adm-btn--cancel bc-delete" data-id="${esc(b.id)}">Usuń</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    grid.querySelectorAll('.bc-edit').forEach(btn =>
+      btn.addEventListener('click', () => openBarberModal(btn.dataset.id)));
+    grid.querySelectorAll('.bc-delete').forEach(btn =>
+      btn.addEventListener('click', () => deleteBarberById(btn.dataset.id, btn)));
+  }
+
+  function openBarberModal(id) {
+    _editingId = id || null;
+    const modal = document.getElementById('barber-modal');
+    const title = document.getElementById('barber-modal-title');
+    const form  = document.getElementById('barber-form');
+    if (!modal || !form) return;
+
+    /* Populate service checkboxes */
+    const svcWrap = document.getElementById('bf-services');
+    if (svcWrap) {
+      svcWrap.innerHTML = SERVICES_LIST.map(s =>
+        `<label class="bf-check"><input type="checkbox" name="svc" value="${s.id}"> ${s.name}</label>`
+      ).join('');
+    }
+
+    if (id) {
+      const b = _allBarbers.find(x => x.id === id);
+      if (!b) return;
+      title.textContent = 'Edytuj barbera';
+      document.getElementById('bf-id').value    = b.id;
+      document.getElementById('bf-name').value  = b.name;
+      document.getElementById('bf-spec').value  = b.spec;
+      document.getElementById('bf-avatar').value = b.avatar || '';
+      document.getElementById('bf-active').checked = b.active !== false;
+      updateAvatarPreview(b.avatar || '');
+      /* Tick services */
+      const svcs = (b.services || '').split(',').map(s => s.trim());
+      svcWrap?.querySelectorAll('input[name="svc"]').forEach(cb => {
+        cb.checked = svcs.includes(cb.value);
+      });
+      /* Tick availability */
+      const avail = (b.availability || '').split(',').map(s => s.trim());
+      form.querySelectorAll('input[name="avail"]').forEach(cb => {
+        cb.checked = avail.includes(cb.value);
+      });
+    } else {
+      title.textContent = 'Dodaj barbera';
+      form.reset();
+      document.getElementById('bf-id').value = '';
+      svcWrap?.querySelectorAll('input[name="svc"]').forEach(cb => cb.checked = true);
+      form.querySelectorAll('input[name="avail"]').forEach(cb => cb.checked = ['1','2','3','4','5'].includes(cb.value));
+      updateAvatarPreview('');
+    }
+    document.getElementById('barber-form-error').textContent = '';
+    modal.classList.remove('is-hidden');
+  }
+
+  function updateAvatarPreview(src) {
+    const el = document.getElementById('bf-avatar-preview');
+    if (!el) return;
+    el.innerHTML = src
+      ? `<img src="${esc(src)}" alt="podgląd" style="height:60px;border-radius:50%;margin-top:6px;">`
+      : '';
+  }
+
+  document.getElementById('bf-avatar')?.addEventListener('input', e => updateAvatarPreview(e.target.value));
+
+  function closeBarberModal() {
+    document.getElementById('barber-modal')?.classList.add('is-hidden');
+    _editingId = null;
+  }
+
+  document.getElementById('btn-add-barber')?.addEventListener('click',       () => openBarberModal(null));
+  document.getElementById('barber-modal-close')?.addEventListener('click',   closeBarberModal);
+  document.getElementById('barber-modal-cancel')?.addEventListener('click',  closeBarberModal);
+  document.getElementById('barber-modal')?.addEventListener('click', e => {
+    if (e.target === document.getElementById('barber-modal')) closeBarberModal();
+  });
+
+  document.getElementById('barber-form')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    const errEl  = document.getElementById('barber-form-error');
+    const saveBtn = document.getElementById('barber-modal-save');
+    const name   = document.getElementById('bf-name')?.value.trim();
+    const spec   = document.getElementById('bf-spec')?.value.trim();
+    if (!name || !spec) { errEl.textContent = 'Imię i specjalizacja są wymagane.'; return; }
+
+    const svcs  = [...document.querySelectorAll('#bf-services input[name="svc"]:checked')].map(c => c.value);
+    const avail = [...document.querySelectorAll('#barber-form input[name="avail"]:checked')].map(c => c.value);
+
+    const barber = {
+      id:           document.getElementById('bf-id')?.value || null,
+      name, spec,
+      avatar:       document.getElementById('bf-avatar')?.value.trim() || '',
+      services:     svcs.join(','),
+      availability: avail.join(','),
+      active:       document.getElementById('bf-active')?.checked !== false,
+    };
+
+    saveBtn.disabled = true; saveBtn.classList.add('is-loading');
+    errEl.textContent = '';
+    try {
+      const res = await api('POST', { action:'saveBarber', barber, key: adminKey });
+      if (res?.success) {
+        await loadBarbers();
+        closeBarberModal();
+        toast('Barber zapisany.', 'ok');
+      } else {
+        errEl.textContent = res?.error || 'Błąd zapisu.';
+      }
+    } catch (err) {
+      errEl.textContent = 'Błąd połączenia: ' + (err.message || 'nieznany');
+    } finally {
+      saveBtn.disabled = false; saveBtn.classList.remove('is-loading');
+    }
+  });
+
+  async function deleteBarberById(id, btn) {
+    if (!confirm('Usunąć tego barbera? Tej operacji nie można cofnąć.')) return;
+    if (btn) { btn.disabled = true; btn.classList.add('is-loading'); }
+    try {
+      const res = await api('POST', { action:'deleteBarber', id, key: adminKey });
+      if (res?.success) {
+        _allBarbers = _allBarbers.filter(b => b.id !== id);
+        renderBarbers();
+        toast('Barber usunięty.', 'ok');
+      } else {
+        toast(res?.error || 'Błąd usuwania.', 'err');
+        if (btn) { btn.disabled = false; btn.classList.remove('is-loading'); }
+      }
+    } catch (err) {
+      toast('Błąd: ' + err.message, 'err');
+      if (btn) { btn.disabled = false; btn.classList.remove('is-loading'); }
+    }
+  }
 
   /* ── Logout ── */
   document.getElementById('btn-logout')?.addEventListener('click', () => {
@@ -256,16 +469,25 @@
     return JSON.parse(await r.text());
   }
 
-  /* ── Mock for local development ── */
+  /* ── Mock for local development (API_URL not set) ── */
   function mockApi(params) {
-    if (params.key === ADMIN_KEY) {
+    if (params.key !== ADMIN_KEY) {
+      return Promise.resolve({ error: 'Unauthorized' });
+    }
+    /* GET-style: fetch all bookings */
+    if (!params.action) {
       return Promise.resolve({ bookings: [
         { id:'1', date:'2026-06-25', time:'10:00', clientName:'Jan Kowalski',    clientPhone:'+48 666 100 200', serviceName:'Strzyżenie klasyczne', barberId:'b1', barberName:'Mirowski',   status:'pending',   confirmationCode:'ABC123' },
         { id:'2', date:'2026-06-25', time:'11:30', clientName:'Piotr Nowak',     clientPhone:'+48 777 200 300', serviceName:'Stylizacja brody',      barberId:'b2', barberName:'Aleksander', status:'confirmed', confirmationCode:'DEF456' },
         { id:'3', date:'2026-06-26', time:'09:00', clientName:'Adam Wiśniewski', clientPhone:'+48 500 300 400', serviceName:'Full Package',           barberId:'b1', barberName:'Mirowski',   status:'cancelled', confirmationCode:'GHI789' },
       ]});
     }
-    return Promise.resolve({ error: 'Unauthorized' });
+    /* POST-style: action routing */
+    if (params.action === 'updateStatus') return Promise.resolve({ success: true });
+    if (params.action === 'getBarbers')   return Promise.resolve({ barbers: _allBarbers });
+    if (params.action === 'saveBarber')   return Promise.resolve({ success: true, id: params.barber?.id || 'b_mock' });
+    if (params.action === 'deleteBarber') return Promise.resolve({ success: true });
+    return Promise.resolve({ success: false, error: 'Unknown mock action' });
   }
 
   /* ================================================================
@@ -283,6 +505,24 @@
   function esc(str) {
     return String(str ?? '')
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ================================================================
+     TOAST NOTIFICATIONS
+  ================================================================ */
+  let _toastTimer = null;
+
+  function toast(msg, type /* 'ok' | 'err' | 'info' */) {
+    let el = document.getElementById('adm-toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'adm-toast';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.className   = 'adm-toast adm-toast--' + (type || 'info') + ' is-visible';
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => el.classList.remove('is-visible'), 3500);
   }
 
 })();

@@ -48,6 +48,9 @@ function doGet(e) {
     if (p.key === CONFIG.ADMIN_KEY) {
       return json({ bookings: getBookings() });
     }
+    if (p.action === 'getBarbers') {
+      return json({ barbers: getBarbers() });
+    }
     if (p.date) {
       return json({ taken: getTakenSlots(p.date, p.barber || null) });
     }
@@ -64,12 +67,24 @@ function doPost(e) {
   try {
     const body = JSON.parse(e.postData.contents);
     switch (body.action) {
+      case 'getSlots':
+        return json({ taken: getTakenSlots(body.date, body.barberId || null) });
+      case 'getBarbers':
+        return json({ barbers: getBarbers() });
       case 'createBooking':
         return json(createBooking(body));
       case 'updateStatus':
         if (body.key !== CONFIG.ADMIN_KEY)
           return json({ success: false, error: 'Unauthorized' });
         return json(updateStatus(body.id, body.status));
+      case 'saveBarber':
+        if (body.key !== CONFIG.ADMIN_KEY)
+          return json({ success: false, error: 'Unauthorized' });
+        return json(saveBarber(body.barber));
+      case 'deleteBarber':
+        if (body.key !== CONFIG.ADMIN_KEY)
+          return json({ success: false, error: 'Unauthorized' });
+        return json(deleteBarber(body.id));
       default:
         return json({ success: false, error: 'Unknown action' });
     }
@@ -232,4 +247,78 @@ function json(data) {
   return ContentService
     .createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.TEXT);
+}
+
+/* ================================================================
+   BARBERS SHEET
+   Columns: ID | Name | Spec | Avatar | Services | Availability | Active
+================================================================ */
+const BC = { ID:1, NAME:2, SPEC:3, AVATAR:4, SERVICES:5, AVAIL:6, ACTIVE:7 };
+
+function getBarbersSheet() {
+  const ss = CONFIG.SPREADSHEET_ID
+    ? SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID)
+    : SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName('Barbers');
+  if (!sh) {
+    sh = ss.insertSheet('Barbers');
+    sh.appendRow(['ID','Name','Spec','Avatar','Services','Availability','Active']);
+    sh.setFrozenRows(1);
+    sh.getRange(1,1,1,7).setFontWeight('bold').setBackground('#1a1a1a').setFontColor('#C6A769');
+    sh.appendRow(['b1','Mirowski','Master Barber','Photos/ЛОГО.jpeg','s1,s2,s3,s4,s5,s6','1,2,3,4,5,6','true']);
+    sh.appendRow(['b2','Aleksander','Senior Barber','','s1,s2,s3,s5','1,2,3,4,5,6','true']);
+  }
+  return sh;
+}
+
+function getBarbers() {
+  const rows = getBarbersSheet().getDataRange().getValues();
+  const out  = [];
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r[BC.ID - 1]) continue;
+    out.push({
+      id:           String(r[BC.ID   - 1]),
+      name:         String(r[BC.NAME - 1]),
+      spec:         String(r[BC.SPEC - 1]),
+      avatar:       String(r[BC.AVATAR   - 1]),
+      services:     String(r[BC.SERVICES - 1]),
+      availability: String(r[BC.AVAIL    - 1]),
+      active:       String(r[BC.ACTIVE   - 1]) !== 'false',
+    });
+  }
+  return out;
+}
+
+function saveBarber(d) {
+  if (!d || !d.name) return { success: false, error: 'Name required' };
+  const sh   = getBarbersSheet();
+  const data = sh.getDataRange().getValues();
+  const row  = [
+    d.id || '', d.name, d.spec || '',
+    d.avatar || '', d.services || '',
+    d.availability || '1,2,3,4,5',
+    d.active !== false ? 'true' : 'false',
+  ];
+  for (let i = 1; i < data.length; i++) {
+    if (d.id && String(data[i][0]) === String(d.id)) {
+      sh.getRange(i + 1, 1, 1, row.length).setValues([row]);
+      return { success: true, id: d.id };
+    }
+  }
+  row[0] = 'b' + Date.now();
+  sh.appendRow(row);
+  return { success: true, id: row[0] };
+}
+
+function deleteBarber(id) {
+  const sh   = getBarbersSheet();
+  const data = sh.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(id)) {
+      sh.deleteRow(i + 1);
+      return { success: true };
+    }
+  }
+  return { success: false, error: 'Not found' };
 }

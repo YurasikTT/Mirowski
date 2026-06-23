@@ -51,6 +51,15 @@
       </div>
     </header>
 
+    <!-- Tab Navigation -->
+    <div class="tab-bar">
+      <button class="tab-btn is-active" data-tab="bookings">Rezerwacje</button>
+      <button class="tab-btn" data-tab="barbers">Barberzy</button>
+    </div>
+
+    <!-- ─── PANEL: Bookings ─── -->
+    <div id="panel-bookings">
+
     <!-- Stats -->
     <div class="stats-row">
       <div class="stat-card">
@@ -114,7 +123,69 @@
 
     <p id="table-empty" class="table-empty is-hidden">Brak rezerwacji spełniających kryteria.</p>
 
+    </div><!-- /#panel-bookings -->
+
+    <!-- ─── PANEL: Barbers ─── -->
+    <div id="panel-barbers" class="is-hidden">
+      <div class="panel-header">
+        <h2 class="panel-title">Barberzy</h2>
+        <button class="adm-btn adm-btn--gold" id="btn-add-barber">+ Dodaj barbera</button>
+      </div>
+      <div id="barbers-grid" class="barbers-grid">
+        <span class="row-loading">Ładowanie…</span>
+      </div>
+    </div><!-- /#panel-barbers -->
+
   </div><!-- /#admin-dashboard -->
+
+  <!-- ─── Barber Edit Modal ─── -->
+  <div id="barber-modal" class="barber-modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="barber-modal-title">
+    <div class="barber-modal__panel">
+      <div class="barber-modal__header">
+        <h3 id="barber-modal-title">Dodaj barbera</h3>
+        <button class="adm-btn adm-btn--ghost" id="barber-modal-close" aria-label="Zamknij">&times;</button>
+      </div>
+      <form id="barber-form" class="barber-form" novalidate>
+        <div class="bf-row">
+          <label class="bf-label">Imię / Pseudonim *
+            <input type="text" id="bf-name" class="adm-input" required placeholder="np. Mirowski">
+          </label>
+          <label class="bf-label">Specjalizacja *
+            <input type="text" id="bf-spec" class="adm-input" required placeholder="np. Master Barber">
+          </label>
+        </div>
+        <label class="bf-label">Zdjęcie (URL lub ścieżka)
+          <input type="text" id="bf-avatar" class="adm-input" placeholder="Photos/plik.jpeg lub https://…">
+          <span id="bf-avatar-preview" class="bf-avatar-preview"></span>
+        </label>
+        <div class="bf-group">
+          <strong class="bf-group-title">Usługi</strong>
+          <div id="bf-services" class="bf-checks"></div>
+        </div>
+        <div class="bf-group">
+          <strong class="bf-group-title">Dostępność (dni tygodnia)</strong>
+          <div class="bf-checks">
+            <label class="bf-check"><input type="checkbox" name="avail" value="1" checked> Pon</label>
+            <label class="bf-check"><input type="checkbox" name="avail" value="2" checked> Wt</label>
+            <label class="bf-check"><input type="checkbox" name="avail" value="3" checked> Śr</label>
+            <label class="bf-check"><input type="checkbox" name="avail" value="4" checked> Czw</label>
+            <label class="bf-check"><input type="checkbox" name="avail" value="5" checked> Pt</label>
+            <label class="bf-check"><input type="checkbox" name="avail" value="6"> Sob</label>
+          </div>
+        </div>
+        <label class="bf-check bf-active-row">
+          <input type="checkbox" id="bf-active" checked>
+          Barber aktywny (widoczny przy rezerwacji)
+        </label>
+        <input type="hidden" id="bf-id">
+        <div class="barber-modal__footer">
+          <button type="button" class="adm-btn adm-btn--ghost" id="barber-modal-cancel">Anuluj</button>
+          <button type="submit" class="adm-btn adm-btn--confirm" id="barber-modal-save">Zapisz</button>
+        </div>
+        <p id="barber-form-error" class="bf-error"></p>
+      </form>
+    </div>
+  </div><!-- /#barber-modal -->
 
   <script src="assets/js/admin/dashboard.js"></script>
 </body>

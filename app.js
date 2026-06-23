@@ -57,9 +57,18 @@ const SheetsAPI = (() => {
   };
 
   return {
-    getSlots:      (date, barberId) => request('getSlots', { date, barberId }),
-    createBooking: payload          => request('createBooking', payload),
-    updateStatus:  (token, id, st)  => request('updateStatus', { token, id, status: st }),
+    /* Returns string[] — handles both mock (returns array) and live backend (returns {taken:[]}) */
+    getSlots: async (date, barberId) => {
+      const res = await request('getSlots', { date, barberId });
+      return Array.isArray(res) ? res : (res?.taken || []);
+    },
+    createBooking: payload         => request('createBooking', payload),
+    updateStatus:  (token, id, st) => request('updateStatus', { token, id, status: st }),
+    /* Returns barber array from backend, or null if unavailable */
+    getBarbers: async () => {
+      const res = await request('getBarbers', {});
+      return Array.isArray(res?.barbers) ? res.barbers : null;
+    },
   };
 })();
 
@@ -175,34 +184,72 @@ const AnimationsModule = (() => {
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
     gsap.registerPlugin(ScrollTrigger);
 
+    /* Global GSAP defaults — smoother everywhere */
+    gsap.defaults({ ease: 'expo.out' });
+
     gsap.utils.toArray('.animate-fade-up').forEach(el =>
-      gsap.fromTo(el, { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: .9, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 88%', once: true } })
+      gsap.fromTo(el,
+        { opacity: 0, y: 64 },
+        { opacity: 1, y: 0, duration: 1.15, ease: 'expo.out',
+          scrollTrigger: { trigger: el, start: 'top 92%', once: true } }
+      )
     );
     gsap.utils.toArray('.animate-fade-left').forEach(el =>
-      gsap.fromTo(el, { opacity: 0, x: -44 }, { opacity: 1, x: 0, duration: .9, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 86%', once: true } })
+      gsap.fromTo(el,
+        { opacity: 0, x: -56 },
+        { opacity: 1, x: 0, duration: 1.15, ease: 'expo.out',
+          scrollTrigger: { trigger: el, start: 'top 90%', once: true } }
+      )
     );
     gsap.utils.toArray('.animate-fade-right').forEach(el =>
-      gsap.fromTo(el, { opacity: 0, x: 44 }, { opacity: 1, x: 0, duration: .9, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 86%', once: true } })
+      gsap.fromTo(el,
+        { opacity: 0, x: 56 },
+        { opacity: 1, x: 0, duration: 1.15, ease: 'expo.out',
+          scrollTrigger: { trigger: el, start: 'top 90%', once: true } }
+      )
     );
     gsap.utils.toArray('.animate-scale-in').forEach(el =>
-      gsap.fromTo(el, { opacity: 0, scale: .9 }, { opacity: 1, scale: 1, duration: .8, ease: 'back.out(1.4)', scrollTrigger: { trigger: el, start: 'top 88%', once: true } })
+      gsap.fromTo(el,
+        { opacity: 0, scale: .86 },
+        { opacity: 1, scale: 1, duration: 1.1, ease: 'expo.out',
+          scrollTrigger: { trigger: el, start: 'top 90%', once: true } }
+      )
     );
 
     document.querySelectorAll('[data-stagger]').forEach(parent => {
       const items = parent.querySelectorAll(parent.dataset.stagger);
       if (!items.length) return;
-      gsap.fromTo(items, { opacity: 0, y: 32 }, { opacity: 1, y: 0, duration: .7, ease: 'power3.out', stagger: parseFloat(parent.dataset.staggerDelay || .11), scrollTrigger: { trigger: parent, start: 'top 84%', once: true } });
+      gsap.fromTo(items,
+        { opacity: 0, y: 44 },
+        { opacity: 1, y: 0, duration: 1.0, ease: 'expo.out',
+          stagger: { amount: 0.55, ease: 'power1.inOut' },
+          scrollTrigger: { trigger: parent, start: 'top 87%', once: true } }
+      );
     });
 
-    /* Counter animation */
+    /* Parallax — elements with [data-parallax="0.15"] etc. */
+    gsap.utils.toArray('[data-parallax]').forEach(el => {
+      const speed = parseFloat(el.dataset.parallax || .25);
+      gsap.to(el, {
+        yPercent: -speed * 55,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: el.closest('section') || el.parentElement,
+          start: 'top bottom', end: 'bottom top',
+          scrub: 1.4,
+        },
+      });
+    });
+
+    /* Counter — cinematic count-up */
     document.querySelectorAll('.stat__num[data-count]').forEach(el => {
       const target = parseFloat(el.dataset.count);
       const suffix = el.dataset.suffix || '';
       ScrollTrigger.create({
-        trigger: el, start: 'top 88%', once: true,
+        trigger: el, start: 'top 90%', once: true,
         onEnter() {
           gsap.fromTo({ n: 0 }, { n: target }, {
-            duration: 2, ease: 'power2.out',
+            duration: 2.4, ease: 'expo.out',
             onUpdate() { el.textContent = Math.round(this.targets()[0].n) + suffix; },
           });
         },
@@ -359,8 +406,11 @@ const GalleryModule = (() => {
 const TestimonialsModule = (() => {
   function init() {
     const track = document.getElementById('testimonials-track');
-    if (!track) return;
-    track.parentNode.appendChild(track.cloneNode(true));
+    if (!track || track.dataset.duped) return;
+    track.dataset.duped = '1';
+    /* Clone children INSIDE the track so translateX(-50%) loops seamlessly.
+       Two sibling tracks would stack vertically in block layout = two rows bug. */
+    [...track.children].forEach(c => track.appendChild(c.cloneNode(true)));
   }
   return { init };
 })();
@@ -377,15 +427,22 @@ const CalendarModule = (() => {
   let viewY, viewM;
   let daysEl, monthEl;
 
+  let _calReady = false;
+
   function init() {
     daysEl  = document.getElementById('cal-days');
     monthEl = document.getElementById('cal-month');
     if (!daysEl || !monthEl) return;
 
-    const now = new Date();
-    viewY = now.getFullYear();
-    viewM = now.getMonth();
+    /* Only reset view date on first open, not on back-navigation */
+    if (!_calReady) {
+      const now = new Date();
+      viewY = now.getFullYear();
+      viewM = now.getMonth();
+      _calReady = true;
+    }
 
+    /* Clone to strip stale listeners, then re-attach */
     const prev = document.getElementById('cal-prev');
     const next = document.getElementById('cal-next');
     if (prev) { const c = prev.cloneNode(true); prev.replaceWith(c); c.addEventListener('click', () => navigate(-1)); }
@@ -496,7 +553,9 @@ const CalendarModule = (() => {
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
   }
 
-  return { init };
+  function reset() { _calReady = false; }
+
+  return { init, reset };
 })();
 
 /* ================================================================
@@ -505,33 +564,63 @@ const CalendarModule = (() => {
 const BookingModule = (() => {
 
   const SERVICES = [
-    { id:'s1', dur:45,  price:80,  cat:'hair',  name:'Strzyżenie klasyczne',    desc:'Precyzyjne strzyżenie dopasowane do kształtu twarzy.' },
-    { id:'s2', dur:30,  price:60,  cat:'beard', name:'Stylizacja brody',        desc:'Kształtowanie i pielęgnacja brody.' },
-    { id:'s3', dur:75,  price:130, cat:'combo', name:'Strzyżenie + Broda',      desc:'Kompleksowa pielęgnacja w jednej wizycie.' },
-    { id:'s4', dur:45,  price:90,  cat:'beard', name:'Golenie brzytwą',         desc:'Tradycyjne golenie z gorącym ręcznikiem.' },
-    { id:'s5', dur:30,  price:60,  cat:'hair',  name:'Strzyżenie maszynką',     desc:'Szybkie precyzyjne strzyżenie maszynką.' },
-    { id:'s6', dur:90,  price:180, cat:'combo', name:'Full Package',            desc:'Strzyżenie, broda, golenie — luksusowy pakiet.' },
+    { id:'s1', dur:45,  price:80,  cat:'hair',
+      name:{ pl:'Strzyżenie klasyczne',   en:'Classic Haircut',       uk:'Класичне стрижіння' },
+      desc:{ pl:'Precyzyjne strzyżenie dopasowane do kształtu twarzy.', en:'Precise cut tailored to your face shape.', uk:'Точна стрижка під форму обличчя.' } },
+    { id:'s2', dur:30,  price:60,  cat:'beard',
+      name:{ pl:'Stylizacja brody',       en:'Beard Styling',          uk:'Стилізація бороди' },
+      desc:{ pl:'Kształtowanie i pielęgnacja brody.', en:'Expert beard shaping and grooming.', uk:'Формування та догляд за бородою.' } },
+    { id:'s3', dur:75,  price:130, cat:'combo',
+      name:{ pl:'Strzyżenie + Broda',     en:'Haircut + Beard',        uk:'Стрижка + Борода' },
+      desc:{ pl:'Kompleksowa pielęgnacja w jednej wizycie.', en:'Complete grooming in one visit.', uk:'Комплексний догляд за один візит.' } },
+    { id:'s4', dur:45,  price:90,  cat:'beard',
+      name:{ pl:'Golenie brzytwą',        en:'Straight Razor Shave',   uk:'Гоління бритвою' },
+      desc:{ pl:'Tradycyjne golenie z gorącym ręcznikiem.', en:'Traditional hot-towel straight razor shave.', uk:'Традиційне гоління з гарячим рушником.' } },
+    { id:'s5', dur:30,  price:60,  cat:'hair',
+      name:{ pl:'Strzyżenie maszynką',    en:'Clipper Cut',            uk:'Стрижка машинкою' },
+      desc:{ pl:'Szybkie precyzyjne strzyżenie maszynką.', en:'Fast and precise clipper cut.', uk:'Швидка та точна стрижка машинкою.' } },
+    { id:'s6', dur:90,  price:180, cat:'combo',
+      name:{ pl:'Full Package',           en:'Full Package',           uk:'Повний пакет' },
+      desc:{ pl:'Strzyżenie, broda, golenie — luksusowy pakiet.', en:'Haircut, beard, shave — luxury package.', uk:'Стрижка, борода, гоління — люксовий пакет.' } },
   ];
 
   const BARBERS = [
-    { id:'any', name:'Dowolny barber',  spec:'Pierwszy dostępny',  avatar:null },
-    { id:'b1',  name:'Mirowski',        spec:'Master Barber',       avatar:'assets/images/team/barber-main.jpg' },
-    { id:'b2',  name:'Aleksander',      spec:'Senior Barber',       avatar:null },
+    { id:'any',
+      name:{ pl:'Dowolny barber',  en:'Any barber',   uk:'Будь-який барбер' },
+      spec:{ pl:'Pierwszy dostępny', en:'First available', uk:'Перший доступний' }, avatar:null },
+    { id:'b1',
+      name:{ pl:'Mirowski',        en:'Mirowski',     uk:'Міровський' },
+      spec:{ pl:'Master Barber',   en:'Master Barber', uk:'Майстер Барбер' }, avatar:'Photos/ЛОГО.jpeg' },
+    { id:'b2',
+      name:{ pl:'Aleksander',      en:'Aleksander',   uk:'Олександр' },
+      spec:{ pl:'Senior Barber',   en:'Senior Barber', uk:'Старший Барбер' }, avatar:null },
   ];
 
   let modal, currentStep = 1, busy = false;
   let btnBack, btnNext, btnSubmit;
   let progressFill, progressSteps;
   let modalTitle;
-  /* step divs */
   let s1, s2, s3, s4, sSuccess, sError;
+  let _liveBarbers = null; /* fetched from backend, replaces hardcoded list */
 
-  const TITLES = ['Wybierz usługę','Wybierz barbera','Data i godzina','Twoje dane'];
+  const TITLES = {
+    pl: ['Wybierz usługę','Wybierz barbera','Data i godzina','Twoje dane'],
+    en: ['Choose a service','Choose a barber','Date & time','Your details'],
+    uk: ['Оберіть послугу','Оберіть барбера','Дата і час','Ваші дані'],
+  };
+
+  let _savedScrollY = 0;
 
   function openModal() {
     if (!modal) return;
     State.reset(['service','barber','date','time','clientName','clientPhone','clientEmail','notes']);
+    CalendarModule.reset();
+    /* iOS scroll-lock: save position, fix body */
+    _savedScrollY = window.scrollY;
+    document.body.style.top   = `-${_savedScrollY}px`;
+    document.body.style.width = '100%';
     modal.classList.add('is-open');
+    modal.removeAttribute('aria-hidden');
     document.body.classList.add('modal-open');
     if (window.lenis) window.lenis.stop();
     showStep(1);
@@ -540,7 +629,12 @@ const BookingModule = (() => {
   function closeModal() {
     if (!modal) return;
     modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('modal-open');
+    /* iOS scroll-lock: restore position */
+    document.body.style.top   = '';
+    document.body.style.width = '';
+    window.scrollTo({ top: _savedScrollY, behavior: 'instant' });
     if (window.lenis) window.lenis.start();
   }
 
@@ -570,15 +664,21 @@ const BookingModule = (() => {
   }
 
   function updateChrome(n) {
-    if (modalTitle) modalTitle.textContent = TITLES[n-1] || '';
+    const lang = State.get('lang') || 'pl';
+    const t = TITLES[lang] || TITLES.pl;
+    if (modalTitle) modalTitle.textContent = t[n-1] || '';
     if (progressFill) progressFill.style.width = (n/4*100)+'%';
+    const stepLabels = { pl:['Usługa','Barber','Termin','Dane'], en:['Service','Barber','Date','Details'], uk:['Послуга','Барбер','Дата','Дані'] };
+    const sl = stepLabels[lang] || stepLabels.pl;
     progressSteps && progressSteps.forEach((el,i) => {
       el.classList.toggle('is-active', i+1===n);
       el.classList.toggle('is-done',   i+1<n);
+      el.textContent = sl[i];
     });
     if (btnBack)   btnBack.style.display   = n>1 && n<5 ? '' : 'none';
     if (btnNext)   btnNext.style.display   = n<4        ? '' : 'none';
-    if (btnSubmit) btnSubmit.style.display = n===4      ? '' : 'none';
+    /* classList because the button may carry is-hidden (which has !important) */
+    if (btnSubmit) btnSubmit.classList.toggle('is-hidden', n!==4);
   }
 
   function populate(n) {
@@ -592,13 +692,14 @@ const BookingModule = (() => {
   function renderServices() {
     const grid = document.getElementById('modal-services');
     if (!grid) return;
+    const lang = State.get('lang') || 'pl';
     grid.innerHTML = '';
     SERVICES.forEach(svc => {
       const sel = State.get('service')?.id === svc.id;
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'modal-service-card' + (sel?' is-selected':'');
-      btn.innerHTML = `<div class="modal-service-card__name">${svc.name}</div>
+      btn.innerHTML = `<div class="modal-service-card__name">${svc.name[lang]||svc.name.pl}</div>
         <div class="modal-service-card__meta">
           <span class="modal-service-card__price">${svc.price} <abbr title="złoty">zł</abbr></span>
           <span class="modal-service-card__duration">${svc.dur} min</span>
@@ -614,24 +715,41 @@ const BookingModule = (() => {
   }
 
   /* — Barbers — */
+  /* Resolves name/spec from both string (live backend) and {pl,en,uk} object (hardcoded) */
+  function localize(val, lang) {
+    if (!val) return '';
+    return typeof val === 'object' ? (val[lang] || val.pl || '') : String(val);
+  }
+
   function renderBarbers() {
     const grid = document.getElementById('modal-barbers');
     if (!grid) return;
+    const lang = State.get('lang') || 'pl';
+
+    /* Build display list: always include "any barber" first */
+    const ANY = BARBERS[0];
+    const realBarbers = _liveBarbers
+      ? _liveBarbers.filter(b => b.active !== false)
+      : BARBERS.slice(1);
+    const list = [ANY, ...realBarbers];
+
     grid.innerHTML = '';
-    BARBERS.forEach(b => {
+    list.forEach(b => {
       const sel = State.get('barber')?.id === b.id;
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'modal-barber-card' + (sel?' is-selected':'');
+      btn.className = 'modal-barber-card' + (sel ? ' is-selected' : '');
+      const nm = localize(b.name, lang);
+      const sp = localize(b.spec, lang);
       const av = b.avatar
-        ? `<img src="${b.avatar}" alt="${b.name}" class="modal-barber-card__avatar" loading="lazy">`
+        ? `<img src="${b.avatar}" alt="${nm}" class="modal-barber-card__avatar" loading="lazy">`
         : `<div class="modal-barber-card__avatar">&#9986;</div>`;
-      btn.innerHTML = `${av}<div class="modal-barber-card__name">${b.name}</div><div class="modal-barber-card__spec">${b.spec}</div>`;
+      btn.innerHTML = `${av}<div class="modal-barber-card__name">${nm}</div><div class="modal-barber-card__spec">${sp}</div>`;
       btn.addEventListener('click', () => {
         State.set('barber', b);
         grid.querySelectorAll('.modal-barber-card').forEach(c => c.classList.remove('is-selected'));
         btn.classList.add('is-selected');
-        setTimeout(() => showStep(3,'forward'), 320);
+        setTimeout(() => showStep(3, 'forward'), 320);
       });
       grid.appendChild(btn);
     });
@@ -643,12 +761,20 @@ const BookingModule = (() => {
     if (!el) return;
     const svc = State.get('service');
     const bar = State.get('barber');
+    const lang = State.get('lang') || 'pl';
+    const L = {
+      pl:{ svc:'Usługa', bar:'Barber', date:'Data', time:'Godzina', price:'Cena' },
+      en:{ svc:'Service', bar:'Barber', date:'Date', time:'Time', price:'Price' },
+      uk:{ svc:'Послуга', bar:'Барбер', date:'Дата', time:'Час', price:'Ціна' },
+    }[lang] || { svc:'Usługa', bar:'Barber', date:'Data', time:'Godzina', price:'Cena' };
+    const svcName = svc?.name?.[lang] || svc?.name?.pl || '—';
+    const barName = bar?.name?.[lang] || bar?.name?.pl || '—';
     el.innerHTML = `
-      <div class="booking-summary__row"><span class="booking-summary__label">Usługa</span><span class="booking-summary__val">${svc?.name||'—'}</span></div>
-      <div class="booking-summary__row"><span class="booking-summary__label">Barber</span><span class="booking-summary__val">${bar?.name||'—'}</span></div>
-      <div class="booking-summary__row"><span class="booking-summary__label">Data</span><span class="booking-summary__val">${State.get('date')||'—'}</span></div>
-      <div class="booking-summary__row"><span class="booking-summary__label">Godzina</span><span class="booking-summary__val">${State.get('time')||'—'}</span></div>
-      <div class="booking-summary__row"><span class="booking-summary__label">Cena</span><span class="booking-summary__val booking-summary__val--gold">${svc?.price||'—'} zł</span></div>`;
+      <div class="booking-summary__row"><span class="booking-summary__label">${L.svc}</span><span class="booking-summary__val">${svcName}</span></div>
+      <div class="booking-summary__row"><span class="booking-summary__label">${L.bar}</span><span class="booking-summary__val">${barName}</span></div>
+      <div class="booking-summary__row"><span class="booking-summary__label">${L.date}</span><span class="booking-summary__val">${State.get('date')||'—'}</span></div>
+      <div class="booking-summary__row"><span class="booking-summary__label">${L.time}</span><span class="booking-summary__val">${State.get('time')||'—'}</span></div>
+      <div class="booking-summary__row"><span class="booking-summary__label">${L.price}</span><span class="booking-summary__val booking-summary__val--gold">${svc?.price||'—'} zł</span></div>`;
   }
 
   /* — Validate — */
@@ -686,15 +812,18 @@ const BookingModule = (() => {
   /* — Submit — */
   async function submit() {
     if (!validate()) return;
-    const svc = State.get('service');
-    const bar = State.get('barber');
+    const svc  = State.get('service');
+    const bar  = State.get('barber');
+    const lang = State.get('lang') || 'pl';
 
     if (btnSubmit) { btnSubmit.classList.add('is-loading'); btnSubmit.disabled=true; }
 
     try {
       const res = await SheetsAPI.createBooking({
-        serviceId:   svc?.id, serviceName: svc?.name,
-        barberId:    bar?.id, barberName:  bar?.name,
+        serviceId:   svc?.id,
+        serviceName: localize(svc?.name, lang),
+        barberId:    bar?.id,
+        barberName:  localize(bar?.name, lang),
         date: State.get('date'), time: State.get('time'),
         duration: svc?.dur, price: svc?.price,
         clientName: State.get('clientName'), clientPhone: State.get('clientPhone'),
@@ -719,9 +848,9 @@ const BookingModule = (() => {
     [s1,s2,s3,s4].forEach(el => el && el.classList.add('is-hidden'));
     if (type==='success' && sSuccess) sSuccess.classList.remove('is-hidden');
     if (type==='error'   && sError)   sError.classList.remove('is-hidden');
-    if (btnBack)   btnBack.style.display   = 'none';
-    if (btnNext)   btnNext.style.display   = 'none';
-    if (btnSubmit) btnSubmit.style.display = 'none';
+    if (btnBack)   btnBack.style.display = 'none';
+    if (btnNext)   btnNext.style.display = 'none';
+    if (btnSubmit) btnSubmit.classList.add('is-hidden');
   }
 
   /* — Helpers — */
@@ -770,6 +899,9 @@ const BookingModule = (() => {
     progressSteps= [...document.querySelectorAll('.progress__step')];
     modalTitle   = document.getElementById('booking-modal-title');
 
+    /* Prefetch barbers from backend so step 2 is ready by the time user opens modal */
+    SheetsAPI.getBarbers().then(bs => { if (bs && bs.length) _liveBarbers = bs; }).catch(() => {});
+
     document.querySelectorAll('[data-booking-open]').forEach(el => el.addEventListener('click', openModal));
     document.querySelectorAll('[data-booking-close]').forEach(el => el.addEventListener('click', closeModal));
     modal.querySelector('.modal__backdrop')?.addEventListener('click', closeModal);
@@ -784,7 +916,156 @@ const BookingModule = (() => {
 })();
 
 /* ================================================================
-   §13 APP
+   §13 I18N — translations for all data-i18n elements
+================================================================ */
+const I18nModule = (() => {
+  const T = {
+    pl: {
+      nav_about:'O nas', nav_services:'Usługi', nav_gallery:'Galeria',
+      nav_reviews:'Opinie', nav_contact:'Kontakt', nav_book:'Zarezerwuj',
+      hero_eyebrow:'Łódź, Poland', hero_slogan:'Twoja broda w najlepszych rękach.',
+      hero_cta_book:'Zarezerwuj wizytę', hero_cta_services:'Nasze usługi',
+      benefit_1_title:'10+ lat doświadczenia', benefit_1_text:'Profesjonaliści z pasją do rzemiosła barberskiego.',
+      benefit_2_title:'Premium produkty', benefit_2_text:'Wyłącznie sprawdzone, luksusowe marki.',
+      benefit_3_title:'Rezerwacja online 24/7', benefit_3_text:'Wygodna rezerwacja o każdej porze.',
+      benefit_4_title:'500+ zadowolonych klientów', benefit_4_text:'Zaufanie budowane przez lata w Łodzi.',
+      services_eyebrow:'Co oferujemy', services_title:'Nasze usługi', services_subtitle:'Każda wizyta to wyjątkowe doświadczenie.',
+      filter_all:'Wszystkie', filter_beard:'Broda', filter_hair:'Włosy', filter_combo:'Combo',
+      service_1_name:'Strzyżenie klasyczne', service_1_desc:'Precyzyjne strzyżenie dopasowane do kształtu twarzy i stylu życia.',
+      service_2_name:'Stylizacja brody', service_2_desc:'Kształtowanie i pielęgnacja brody na najwyższym poziomie.',
+      service_3_name:'Strzyżenie + Broda', service_3_desc:'Kompleksowa pielęgnacja włosów i brody w jednej wizycie.',
+      service_4_name:'Golenie brzytwą', service_4_desc:'Tradycyjne golenie na gorący ręcznik z użyciem brzytwy.',
+      service_5_name:'Strzyżenie maszynką', service_5_desc:'Szybkie i precyzyjne strzyżenie maszynką z wykończeniem.',
+      service_6_name:'Full Package', service_6_desc:'Strzyżenie, broda, golenie i pielęgnacja — luksusowy pakiet.',
+      service_popular:'Najpopularniejszy', service_book:'Zarezerwuj',
+      about_eyebrow:'Nasza historia', 'about_title':'Rzemiosło<br>to nasz styl życia', about_badge:'lat doświadczenia',
+      about_p1:'MIROWSKI BARBERSHOP to miejsce, gdzie tradycja spotyka nowoczesny styl. Każda wizyta to rytuał — od pierwszego cięcia po ostatni szlif brzytwą.',
+      about_p2:'Znajdziesz nas w sercu Łodzi. Nasz zespół to pasjonaci, dla których każdy klient zasługuje na wyjątkową uwagę i najwyższy poziom obsługi.',
+      about_cta:'Poznaj nasze usługi', stat_years:'Lat doświadczenia', stat_clients:'Klientów miesięcznie', stat_rating:'Ocena Google',
+      gallery_eyebrow:'Nasze prace', gallery_title:'Galeria',
+      reviews_eyebrow:'Opinie klientów', reviews_title:'Co mówią o nas',
+      review_1:'"Najlepszy barbershop w Łodzi. Zawsze wychodzę zadowolony!"',
+      review_2:'"Profesjonalizm na najwyższym poziomie. Polecam każdemu!"',
+      review_3:'"Świetna atmosfera i mistrzowskie strzyżenie. Wracam co miesiąc."',
+      review_4:'"Рекомендую! Найкраща перукарня в місті. Чудові результати."',
+      review_5:'"Exceptional service. Worth every złoty. Best barbers in Lodz."',
+      contact_eyebrow:'Znajdź nas', contact_title:'Kontakt',
+      contact_addr_label:'Adres', contact_addr:'ul. Piotrkowska, 90-001 Łódź',
+      contact_phone_label:'Telefon', contact_hours_label:'Godziny otwarcia',
+      contact_hours_week:'Pon–Pt: 9:00–20:00', contact_hours_sat:'Sob: 9:00–17:00',
+      contact_cta_call:'Zadzwoń teraz', contact_cta_wa:'WhatsApp',
+      footer_nav_title:'Nawigacja', footer_social_title:'Śledź nas', footer_rights:'Wszelkie prawa zastrzeżone.',
+      step_service:'Usługa', step_barber:'Barber', step_date:'Termin', step_details:'Dane',
+      step1_title:'Wybierz usługę', btn_back:'Wstecz', btn_next:'Dalej', btn_confirm:'Potwierdź rezerwację',
+      form_name:'Imię i nazwisko *', form_phone:'Telefon *', form_optional:'(opcjonalnie)',
+      form_terms:'Akceptuję regulamin i politykę prywatności.',
+      select_date_prompt:'Wybierz datę, aby zobaczyć dostępne godziny.',
+      success_title:'Rezerwacja potwierdzona!', success_text:'Potwierdzenie wysłano na Twój telefon.', success_close:'Zamknij',
+      error_title:'Coś poszło nie tak', error_text:'Spróbuj ponownie lub zadzwoń do nas.',
+    },
+    en: {
+      nav_about:'About', nav_services:'Services', nav_gallery:'Gallery',
+      nav_reviews:'Reviews', nav_contact:'Contact', nav_book:'Book now',
+      hero_eyebrow:'Łódź, Poland', hero_slogan:'Your beard in the best hands.',
+      hero_cta_book:'Book an appointment', hero_cta_services:'Our services',
+      benefit_1_title:'10+ years of experience', benefit_1_text:'Professionals with a passion for barbering.',
+      benefit_2_title:'Premium products', benefit_2_text:'Only trusted, luxury brands.',
+      benefit_3_title:'Online booking 24/7', benefit_3_text:'Book at any time of day or night.',
+      benefit_4_title:'500+ satisfied clients', benefit_4_text:'Trust built over years in Łódź.',
+      services_eyebrow:'What we offer', services_title:'Our services', services_subtitle:'Every visit is a unique experience.',
+      filter_all:'All', filter_beard:'Beard', filter_hair:'Hair', filter_combo:'Combo',
+      service_1_name:'Classic Haircut', service_1_desc:'Precise cut tailored to your face shape and lifestyle.',
+      service_2_name:'Beard Styling', service_2_desc:'Expert beard shaping and grooming.',
+      service_3_name:'Haircut + Beard', service_3_desc:'Complete hair and beard grooming in one visit.',
+      service_4_name:'Straight Razor Shave', service_4_desc:'Traditional hot-towel straight razor shave.',
+      service_5_name:'Clipper Cut', service_5_desc:'Fast and precise clipper cut with finishing.',
+      service_6_name:'Full Package', service_6_desc:'Haircut, beard, shave and grooming — luxury package.',
+      service_popular:'Most popular', service_book:'Book',
+      about_eyebrow:'Our story', 'about_title':'Craft<br>is our way of life', about_badge:'years of experience',
+      about_p1:'MIROWSKI BARBERSHOP is a place where tradition meets modern style. Every visit is a ritual — from the first cut to the last razor finish.',
+      about_p2:'Find us in the heart of Łódź. Our team are passionate professionals who give every client exceptional attention.',
+      about_cta:'Explore our services', stat_years:'Years of experience', stat_clients:'Clients per month', stat_rating:'Google rating',
+      gallery_eyebrow:'Our work', gallery_title:'Gallery',
+      reviews_eyebrow:'Client reviews', reviews_title:'What they say about us',
+      review_1:'"Best barbershop in Łódź. Always leave satisfied!"',
+      review_2:'"Top-level professionalism. Recommend to everyone!"',
+      review_3:'"Great atmosphere and masterful cuts. Come back every month."',
+      review_4:'"Highly recommend! Best barbers in the city. Excellent results."',
+      review_5:'"Exceptional service. Worth every złoty. Best barbers in Lodz."',
+      contact_eyebrow:'Find us', contact_title:'Contact',
+      contact_addr_label:'Address', contact_addr:'ul. Piotrkowska, 90-001 Łódź, Poland',
+      contact_phone_label:'Phone', contact_hours_label:'Opening hours',
+      contact_hours_week:'Mon–Fri: 9:00–20:00', contact_hours_sat:'Sat: 9:00–17:00',
+      contact_cta_call:'Call now', contact_cta_wa:'WhatsApp',
+      footer_nav_title:'Navigation', footer_social_title:'Follow us', footer_rights:'All rights reserved.',
+      step_service:'Service', step_barber:'Barber', step_date:'Date', step_details:'Details',
+      step1_title:'Choose a service', btn_back:'Back', btn_next:'Next', btn_confirm:'Confirm booking',
+      form_name:'Full name *', form_phone:'Phone *', form_optional:'(optional)',
+      form_terms:'I accept the terms and privacy policy.',
+      select_date_prompt:'Select a date to see available times.',
+      success_title:'Booking confirmed!', success_text:'Confirmation sent to your phone.', success_close:'Close',
+      error_title:'Something went wrong', error_text:'Please try again or call us directly.',
+    },
+    uk: {
+      nav_about:'Про нас', nav_services:'Послуги', nav_gallery:'Галерея',
+      nav_reviews:'Відгуки', nav_contact:'Контакт', nav_book:'Записатися',
+      hero_eyebrow:'Лодзь, Польща', hero_slogan:'Ваша борода в найкращих руках.',
+      hero_cta_book:'Записатися на прийом', hero_cta_services:'Наші послуги',
+      benefit_1_title:'10+ років досвіду', benefit_1_text:'Професіонали з пристрастю до барбер-ремесла.',
+      benefit_2_title:'Преміум продукти', benefit_2_text:'Тільки перевірені, люксові бренди.',
+      benefit_3_title:'Онлайн бронювання 24/7', benefit_3_text:'Зручне бронювання в будь-який час.',
+      benefit_4_title:'500+ задоволених клієнтів', benefit_4_text:'Довіра, побудована роками в Лодзі.',
+      services_eyebrow:'Що ми пропонуємо', services_title:'Наші послуги', services_subtitle:'Кожен візит — унікальний досвід.',
+      filter_all:'Усі', filter_beard:'Борода', filter_hair:'Волосся', filter_combo:'Комбо',
+      service_1_name:'Класичне стрижіння', service_1_desc:'Точна стрижка під форму обличчя та стиль życia.',
+      service_2_name:'Стилізація бороди', service_2_desc:'Формування та догляд за бородою вищого рівня.',
+      service_3_name:'Стрижка + Борода', service_3_desc:'Комплексний догляд за волоссям і бородою за один візит.',
+      service_4_name:'Гоління бритвою', service_4_desc:'Традиційне гоління бритвою з гарячим рушником.',
+      service_5_name:'Стрижка машинкою', service_5_desc:'Швидка та точна стрижка машинкою з обробкою.',
+      service_6_name:'Повний пакет', service_6_desc:'Стрижка, борода, гоління та догляд — люксовий пакет.',
+      service_popular:'Найпопулярніший', service_book:'Записатися',
+      about_eyebrow:'Наша історія', 'about_title':'Ремесло —<br>це наш спосіб życia', about_badge:'років досвіду',
+      about_p1:'MIROWSKI BARBERSHOP — місце, де традиція зустрічається з сучасним стилем. Кожен візит — ритуал від першого розрізу до останнього штриху бритвою.',
+      about_p2:'Знайдіть нас у серці Лодзя. Наша команда — пристрасні професіонали, для яких кожен клієнт заслуговує особливої уваги.',
+      about_cta:'Ознайомитися з послугами', stat_years:'Років досвіду', stat_clients:'Клієнтів на місяць', stat_rating:'Оцінка Google',
+      gallery_eyebrow:'Наші роботи', gallery_title:'Галерея',
+      reviews_eyebrow:'Відгуки клієнтів', reviews_title:'Що кажуть про нас',
+      review_1:'"Найкращий барбершоп у Лодзі. Завжди виходжу задоволеним!"',
+      review_2:'"Професіоналізм найвищого рівня. Рекомендую кожному!"',
+      review_3:'"Чудова атмосфера і майстерна стрижка. Повертаюся щомісяця."',
+      review_4:'"Рекомендую! Найкраща перукарня в місті. Чудові результати."',
+      review_5:'"Виняткове обслуговування. Найкращі барбери в Лодзі."',
+      contact_eyebrow:'Знайдіть нас', contact_title:'Контакт',
+      contact_addr_label:'Адреса', contact_addr:'вул. Пьотрковська, 90-001 Лодзь',
+      contact_phone_label:'Телефон', contact_hours_label:'Години роботи',
+      contact_hours_week:'Пн–Пт: 9:00–20:00', contact_hours_sat:'Сб: 9:00–17:00',
+      contact_cta_call:'Зателефонувати', contact_cta_wa:'WhatsApp',
+      footer_nav_title:'Навігація', footer_social_title:'Слідкуйте за нами', footer_rights:'Усі права захищені.',
+      step_service:'Послуга', step_barber:'Барбер', step_date:'Дата', step_details:'Дані',
+      step1_title:'Оберіть послугу', btn_back:'Назад', btn_next:'Далі', btn_confirm:'Підтвердити бронювання',
+      form_name:"Ім'я та прізвище *", form_phone:'Телефон *', form_optional:'(необов\'язково)',
+      form_terms:'Приймаю умови та політику конфіденційності.',
+      select_date_prompt:'Оберіть дату, щоб побачити доступні години.',
+      success_title:'Бронювання підтверджено!', success_text:'Підтвердження надіслано на ваш телефон.', success_close:'Закрити',
+      error_title:'Щось пішло не так', error_text:'Спробуйте ще раз або зателефонуйте нам.',
+    },
+  };
+
+  function apply(lang) {
+    const dict = T[lang] || T.pl;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const v = dict[el.dataset.i18n];
+      if (v !== undefined) el.innerHTML = v;
+    });
+    document.documentElement.lang = lang === 'uk' ? 'uk' : lang === 'en' ? 'en' : 'pl';
+    /* Duplicated marquee cards also carry [data-i18n] — querySelectorAll updates all of them. */
+  }
+
+  return { apply };
+})();
+
+/* ================================================================
+   §14 APP
 ================================================================ */
 const App = (() => {
   const ADMIN_KEY = 'MIR_ADMIN_2025';
@@ -826,14 +1107,17 @@ const App = (() => {
     TestimonialsModule.init();
     BookingModule.init();
 
-    /* Language buttons (visual only — content is static PL) */
+    /* Language switcher — applies full translation on click */
     document.querySelectorAll('.lang-btn[data-lang]').forEach(btn =>
       btn.addEventListener('click', () => {
-        State.set('lang', btn.dataset.lang);
+        const lang = btn.dataset.lang;
+        State.set('lang', lang);
         document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('is-active'));
         btn.classList.add('is-active');
+        I18nModule.apply(lang);
       })
     );
+    I18nModule.apply('pl'); /* apply default language */
   }
 
   return { init };

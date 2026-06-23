@@ -385,6 +385,239 @@ body {
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
 
 /* ================================================================
+   BUTTON LOADING STATE
+================================================================ */
+.adm-btn.is-loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+.adm-btn.is-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 12px; height: 12px;
+  margin: -6px 0 0 -6px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  color: var(--muted);
+}
+
+/* ================================================================
+   TOAST NOTIFICATIONS
+================================================================ */
+.adm-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  padding: 11px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  max-width: 360px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.55);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity .25s, transform .25s;
+  pointer-events: none;
+}
+.adm-toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.adm-toast--ok   { background: rgba(76,175,80,.15);  border: 1px solid rgba(76,175,80,.35);  color: #6fcf70; }
+.adm-toast--err  { background: rgba(224,82,82,.14);  border: 1px solid rgba(224,82,82,.35);  color: #e87474; }
+.adm-toast--info { background: rgba(198,167,105,.12); border: 1px solid rgba(198,167,105,.3); color: var(--gold); }
+
+/* ================================================================
+   GOLD BUTTON VARIANT
+================================================================ */
+.adm-btn--gold {
+  background: #C6A769;
+  color: #080808;
+  border: 1px solid #C6A769;
+  font-weight: 600;
+}
+.adm-btn--gold:hover { background: #b8965d; opacity: 1; }
+
+/* ================================================================
+   TAB BAR
+================================================================ */
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+.tab-btn {
+  padding: 9px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  margin-bottom: -1px;
+  transition: color .2s, border-color .2s;
+}
+.tab-btn:hover     { color: var(--white); }
+.tab-btn.is-active { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* ================================================================
+   PANEL HEADER
+================================================================ */
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.panel-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--white);
+}
+
+/* ================================================================
+   BARBER CARDS GRID
+================================================================ */
+.barbers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.barber-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color .2s;
+}
+.barber-card:hover { border-color: rgba(198,167,105,.3); }
+
+.bc-avatar {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+  display: block;
+}
+.bc-avatar--placeholder {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--card2);
+  color: var(--muted2);
+  font-size: 1.6rem;
+}
+
+.bc-body { flex: 1; }
+.bc-name { font-weight: 600; font-size: .95rem; display: flex; align-items: center; gap: 8px; }
+.bc-spec { color: var(--muted); font-size: .8rem; margin-top: 3px; }
+.bc-meta { color: var(--muted2); font-size: .75rem; margin-top: 6px; }
+
+.bc-actions { display: flex; gap: 8px; margin-top: 4px; }
+
+/* ================================================================
+   BARBER MODAL
+================================================================ */
+.barber-modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.75);
+  backdrop-filter: blur(6px);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.barber-modal__panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  width: min(540px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+}
+
+.barber-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0;
+  background: var(--card);
+  z-index: 1;
+}
+.barber-modal__header h3 { font-size: .95rem; font-weight: 600; }
+
+.barber-modal__footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--card);
+  position: sticky; bottom: 0;
+}
+
+/* ================================================================
+   BARBER FORM
+================================================================ */
+.barber-form {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.bf-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: .8rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.bf-label .adm-input { margin-top: 0; }
+
+.bf-group { display: flex; flex-direction: column; gap: 8px; }
+.bf-group-title { font-size: .8rem; font-weight: 600; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+
+.bf-checks { display: flex; flex-wrap: wrap; gap: 8px; }
+.bf-check {
+  display: flex; align-items: center; gap: 5px;
+  font-size: .8rem; color: var(--muted); cursor: pointer;
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 5px 10px;
+  transition: border-color .15s, color .15s;
+}
+.bf-check:has(input:checked) { border-color: var(--gold); color: var(--white); }
+.bf-check input { display: none; }
+
+.bf-active-row { font-size: .83rem; color: var(--muted); cursor: pointer; }
+.bf-active-row input { display: inline; margin-right: 6px; accent-color: var(--gold); }
+
+.bf-error { font-size: .78rem; color: var(--error); min-height: 1em; }
+
+.bf-avatar-preview { display: block; }
+
+/* ================================================================
    RESPONSIVE
 ================================================================ */
 @media (max-width: 960px) {

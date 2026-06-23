@@ -798,6 +798,7 @@ const BookingModule = (() => {
 
   let _savedScrollY = 0;
   let _modalWheelBlock = null;
+  let _modalTouchBlock = null;
   let _submitting = false;
 
   function openModal() {
@@ -812,8 +813,9 @@ const BookingModule = (() => {
     modal.removeAttribute('aria-hidden');
     document.body.classList.add('modal-open');
     if (window.lenis) window.lenis.stop();
-    /* Lenis intercepts wheel events even when stopped — capture them first
-       and manually scroll the active step so the modal scrolls normally */
+
+    /* Desktop: Lenis intercepts wheel events even when stopped.
+       Capture them first and manually scroll the active step. */
     _modalWheelBlock = (e) => {
       if (!modal.classList.contains('is-open') || !modal.contains(e.target)) return;
       e.stopImmediatePropagation();
@@ -824,6 +826,20 @@ const BookingModule = (() => {
       }
     };
     window.addEventListener('wheel', _modalWheelBlock, { capture: true, passive: true });
+
+    /* Mobile: Lenis registers { passive:false } touchmove listeners and calls
+       preventDefault() even when stopped — this blocks ALL native touch scroll.
+       Intercept at capture phase (runs before Lenis bubble-phase handlers) and
+       stopImmediatePropagation so Lenis never sees the event.
+       We stay passive so the browser still performs native momentum scroll on
+       .modal__step which has overflow-y:scroll + touch-action:pan-y. */
+    _modalTouchBlock = (e) => {
+      if (!modal.classList.contains('is-open') || !modal.contains(e.target)) return;
+      e.stopImmediatePropagation();
+    };
+    window.addEventListener('touchstart', _modalTouchBlock, { capture: true, passive: true });
+    window.addEventListener('touchmove',  _modalTouchBlock, { capture: true, passive: true });
+
     showStep(1);
   }
 
@@ -839,6 +855,11 @@ const BookingModule = (() => {
     if (_modalWheelBlock) {
       window.removeEventListener('wheel', _modalWheelBlock, { capture: true });
       _modalWheelBlock = null;
+    }
+    if (_modalTouchBlock) {
+      window.removeEventListener('touchstart', _modalTouchBlock, { capture: true });
+      window.removeEventListener('touchmove',  _modalTouchBlock, { capture: true });
+      _modalTouchBlock = null;
     }
     if (window.lenis) window.lenis.start();
   }

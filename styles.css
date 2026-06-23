@@ -745,10 +745,12 @@ p  { max-width: 65ch; }
 .modal__step {
   flex: 1;
   min-height: 0;                      /* allows flex shrink so overflow-y activates */
-  overflow-y: auto;
+  overflow-y: scroll;                 /* explicit scroll — iOS Safari is unreliable with 'auto' */
   -webkit-overflow-scrolling: touch;  /* iOS momentum scroll */
+  touch-action: pan-y;               /* allow vertical finger scroll, block Lenis interference */
   padding: var(--sp-4) var(--sp-8) var(--sp-6);
   overscroll-behavior: contain;
+  will-change: transform;            /* GPU compositing layer — prevents iOS position:fixed scroll block */
   transition: opacity .24s var(--ease-luxury), transform .24s var(--ease-luxury);
 }
 .modal__step.is-exit-left  { opacity: 0; transform: translateX(-22px); pointer-events: none; }
@@ -1822,12 +1824,13 @@ img.modal-barber-card__avatar { display: block; }
     border-radius: var(--r-xl) var(--r-xl) 0 0;
   }
 
-  .modal__step       { padding-inline: var(--sp-5); }
-  .modal__header     { padding-inline: var(--sp-5); }
-  .modal__progress   { padding-inline: var(--sp-5); }
-  .modal__title      { padding-inline: var(--sp-5); font-size: var(--text-2xl); }
-  .modal__footer     { padding-inline: var(--sp-5); }
-  .modal__toast      { margin-inline: var(--sp-5); }
+  /* Reduce fixed-chrome padding so the scrollable step gets maximum height */
+  .modal__header   { padding: var(--sp-3) var(--sp-5); }
+  .modal__progress { padding: var(--sp-3) var(--sp-5); }
+  .modal__title    { padding: var(--sp-3) var(--sp-5) var(--sp-2); font-size: var(--text-xl); }
+  .modal__footer   { padding: var(--sp-4) var(--sp-5); }
+  .modal__step     { padding: var(--sp-3) var(--sp-5) var(--sp-8); }
+  .modal__toast    { margin-inline: var(--sp-5); }
 
   .step__grid        { grid-template-columns: 1fr; }
   .step__grid--barbers { grid-template-columns: repeat(2, 1fr); }

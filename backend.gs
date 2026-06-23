@@ -19,7 +19,7 @@
 ================================================================ */
 
 const CONFIG = {
-  SPREADSHEET_ID: '',           // ← paste your spreadsheet ID from the URL
+  SPREADSHEET_ID: '1HvggGsM6d6QduhXh9A3rAf0RKivx57cMCnzAEjSeVs4',           // ← paste your spreadsheet ID from the URL
   SHEET_NAME:     'Bookings',
   ADMIN_KEY:      'MIR_ADMIN_2025', // ← change this, update app.js too
   TIMEZONE:       'Europe/Warsaw',

@@ -764,6 +764,17 @@ const BookingModule = (() => {
   let modal, currentStep = 1, busy = false;
   let btnBack, btnNext, btnSubmit;
   let progressFill, progressSteps;
+
+  /* Returns taken slots correctly for "any barber" (intersection = ALL busy) */
+  async function getEffectiveTaken(date, bid) {
+    if (!bid || bid === 'any') {
+      const barbers = (_liveBarbers || BARBERS.slice(1)).filter(b => b.active !== false);
+      if (!barbers.length) return [];
+      const results = await Promise.all(barbers.map(b => SheetsAPI.getSlots(date, b.id).catch(() => [])));
+      return results.reduce((a, b) => a.filter(t => b.includes(t)), results[0] || []);
+    }
+    return SheetsAPI.getSlots(date, bid).catch(() => []);
+  }
   let modalTitle;
   let s1, s2, s3, s4, sSuccess, sError;
   let _liveBarbers = null; /* fetched from backend, replaces hardcoded list */
@@ -790,6 +801,7 @@ const BookingModule = (() => {
     modal.removeAttribute('aria-hidden');
     document.body.classList.add('modal-open');
     if (window.lenis) window.lenis.stop();
+    if (typeof gsap !== 'undefined') gsap.globalTimeline.pause(); /* stop gallery GSAP — prevents backdrop-filter repaints */
     /* Lenis intercepts wheel events even when stopped — capture them first
        and manually scroll the active step so the modal scrolls normally */
     _modalWheelBlock = (e) => {
@@ -818,6 +830,7 @@ const BookingModule = (() => {
       window.removeEventListener('wheel', _modalWheelBlock, { capture: true });
       _modalWheelBlock = null;
     }
+    if (typeof gsap !== 'undefined') gsap.globalTimeline.resume();
     if (window.lenis) window.lenis.start();
   }
 
@@ -1010,7 +1023,7 @@ const BookingModule = (() => {
 
     try {
       /* Re-check slot availability right before booking to prevent duplicates */
-      const taken = await SheetsAPI.getSlots(State.get('date'), bar?.id || null);
+      const taken = await getEffectiveTaken(State.get('date'), bar?.id);
       if (taken.includes(State.get('time'))) {
         shake('Ten termin jest już zajęty. Wybierz inny czas.');
         State.set('time', null);
@@ -1122,7 +1135,7 @@ const BookingModule = (() => {
         btnNext.disabled = true; btnNext.classList.add('is-loading');
         try {
           const bid   = State.get('barber')?.id;
-          const taken = await SheetsAPI.getSlots(State.get('date'), (!bid || bid === 'any') ? null : bid);
+          const taken = await getEffectiveTaken(State.get('date'), bid);
           if (taken.includes(State.get('time'))) {
             shake('Ten termin właśnie został zajęty. Wybierz inny czas.');
             State.set('time', null);

@@ -574,9 +574,36 @@ p  { max-width: 65ch; }
 .btn--xl { padding: 1.25rem 3rem;   font-size: var(--text-base); }
 .btn--block { width: 100%; }
 
-.btn__spinner { display: none; width: 15px; height: 15px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin .65s linear infinite; }
+/* Spinner — always in DOM/spinning, just hidden; avoids restart flicker */
+.btn__spinner {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 16px; height: 16px;
+  border: 2.5px solid rgba(255,255,255,.2);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  opacity: 0;
+  animation: spin .55s linear infinite;
+  pointer-events: none;
+  transition: opacity .18s ease;
+}
+.btn__label    { transition: opacity .18s ease; }
 .btn.is-loading .btn__label   { opacity: 0; }
-.btn.is-loading .btn__spinner { display: block; }
+.btn.is-loading .btn__spinner { opacity: 1; }
+
+/* Click flash ripple */
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,.13);
+  opacity: 0;
+  border-radius: inherit;
+  transition: opacity .25s ease;
+  pointer-events: none;
+}
+.btn:active::after { opacity: 1; transition: opacity 0s; }
 
 /* ================================================================
    §9 FORMS
@@ -645,9 +672,13 @@ p  { max-width: 65ch; }
   position: absolute;
   inset: 0;
   background: rgba(0,0,0,.78);
+  cursor: pointer;
+  transform: translateZ(0); /* force GPU composite layer */
+}
+/* Blur activates AFTER modal opens (avoids FPS drop during animation) */
+.modal.is-open .modal__backdrop {
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
-  cursor: pointer;
 }
 
 .modal__panel {

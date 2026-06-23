@@ -644,7 +644,9 @@ p  { max-width: 65ch; }
 .modal__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,.82);
+  background: rgba(0,0,0,.78);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   cursor: pointer;
 }
 

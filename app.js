@@ -573,6 +573,15 @@ const CalendarModule = (() => {
   let daysEl, monthEl;
 
   let _calReady = false;
+  let _realBarberIds = ['b1', 'b2']; // updated by BookingModule when live barbers load
+
+  function setBarbers(ids) { if (ids && ids.length) _realBarberIds = ids; }
+
+  function refreshSlots() {
+    const ds = State.get('date');
+    if (!ds) return;
+    loadSlots(new Date(ds + 'T12:00:00'));
+  }
 
   function init() {
     daysEl  = document.getElementById('cal-days');
@@ -659,7 +668,18 @@ const CalendarModule = (() => {
     grid.innerHTML = '<div class="step__loading">ładowanie...</div>';
 
     let taken = [];
-    try { taken = await SheetsAPI.getSlots(fmtDate(date), State.get('barber')?.id || null); } catch {}
+    try {
+      const bid = State.get('barber')?.id;
+      if (!bid || bid === 'any') {
+        /* "Any barber" — slot is unavailable only if ALL barbers are busy */
+        const results = await Promise.all(
+          _realBarberIds.map(id => SheetsAPI.getSlots(fmtDate(date), id).catch(() => []))
+        );
+        taken = results.reduce((acc, slots) => acc.filter(t => slots.includes(t)), results[0] || []);
+      } else {
+        taken = await SheetsAPI.getSlots(fmtDate(date), bid);
+      }
+    } catch {}
 
     const h     = HOURS[date.getDay()];
     const slots = genSlots(h.o, h.c);
@@ -700,7 +720,7 @@ const CalendarModule = (() => {
 
   function reset() { _calReady = false; }
 
-  return { init, reset };
+  return { init, reset, setBarbers, refreshSlots };
 })();
 
 /* ================================================================
@@ -912,7 +932,6 @@ const BookingModule = (() => {
         State.set('barber', b);
         grid.querySelectorAll('.modal-barber-card').forEach(c => c.classList.remove('is-selected'));
         btn.classList.add('is-selected');
-        setTimeout(() => showStep(3, 'forward'), 320);
       });
       grid.appendChild(btn);
     });
@@ -1081,7 +1100,12 @@ const BookingModule = (() => {
     modalTitle   = document.getElementById('booking-modal-title');
 
     /* Prefetch barbers from backend so step 2 is ready by the time user opens modal */
-    SheetsAPI.getBarbers().then(bs => { if (bs && bs.length) _liveBarbers = bs; }).catch(() => {});
+    SheetsAPI.getBarbers().then(bs => {
+      if (bs && bs.length) {
+        _liveBarbers = bs;
+        CalendarModule.setBarbers(bs.filter(b => b.active !== false).map(b => b.id));
+      }
+    }).catch(() => {});
 
     document.querySelectorAll('[data-booking-open]').forEach(el => el.addEventListener('click', openModal));
     document.querySelectorAll('[data-booking-close]').forEach(el => el.addEventListener('click', closeModal));
@@ -1089,7 +1113,29 @@ const BookingModule = (() => {
     document.addEventListener('keydown', e => { if (e.key==='Escape' && modal.classList.contains('is-open')) closeModal(); });
 
     btnBack?.addEventListener('click', () => { if (currentStep>1) showStep(currentStep-1,'back'); });
-    btnNext?.addEventListener('click', () => { if (validate() && currentStep<4) showStep(currentStep+1,'forward'); });
+    btnNext?.addEventListener('click', async () => {
+      if (currentStep === 3) {
+        if (!State.get('date') || !State.get('time')) {
+          shake('Proszę wybrać datę i godzinę.');
+          return;
+        }
+        btnNext.disabled = true; btnNext.classList.add('is-loading');
+        try {
+          const bid   = State.get('barber')?.id;
+          const taken = await SheetsAPI.getSlots(State.get('date'), (!bid || bid === 'any') ? null : bid);
+          if (taken.includes(State.get('time'))) {
+            shake('Ten termin właśnie został zajęty. Wybierz inny czas.');
+            State.set('time', null);
+            CalendarModule.refreshSlots();
+            return;
+          }
+        } catch { /* proceed if check fails */ }
+        finally { btnNext.disabled = false; btnNext.classList.remove('is-loading'); }
+        showStep(4, 'forward');
+      } else {
+        if (validate() && currentStep < 4) showStep(currentStep + 1, 'forward');
+      }
+    });
     btnSubmit?.addEventListener('click', submit);
   }
 

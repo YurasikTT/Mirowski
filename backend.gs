@@ -168,7 +168,7 @@ function getTakenSlots(targetDate, barberId) {
     if (normalizeDate(r[COL.DATE - 1]) !== targetDate) continue;
     if (barberId && String(r[COL.BARBER_ID - 1]) !== String(barberId)) continue;
 
-    const t = String(r[COL.TIME - 1]).trim();
+    const t = normalizeTime(r[COL.TIME - 1]);
     if (t) taken.push(t);
   }
   return taken;
@@ -187,7 +187,7 @@ function getBookings() {
     result.push({
       id:               String(r[COL.ID - 1]),
       date:             normalizeDate(r[COL.DATE - 1]),
-      time:             String(r[COL.TIME - 1]),
+      time:             normalizeTime(r[COL.TIME - 1]),
       duration:         Number(r[COL.DURATION - 1]) || 60,
       serviceId:        String(r[COL.SERVICE_ID - 1]),
       serviceName:      String(r[COL.SERVICE_NAME - 1]),
@@ -233,6 +233,14 @@ function normalizeDate(val) {
     return Utilities.formatDate(val, CONFIG.TIMEZONE, 'yyyy-MM-dd');
   }
   return String(val).replace(/\//g, '-').split('T')[0].trim();
+}
+
+/* Sheets auto-converts "10:00" to a Date object — extract HH:mm back */
+function normalizeTime(val) {
+  if (val instanceof Date) {
+    return Utilities.formatDate(val, CONFIG.TIMEZONE, 'HH:mm');
+  }
+  return String(val).trim().substring(0, 5);
 }
 
 function generateCode() {

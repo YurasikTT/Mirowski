@@ -708,8 +708,11 @@
       </div>
       <footer class="modal__footer">
         <button class="btn btn--ghost" id="modal-back" data-i18n="btn_back">Wstecz</button>
-        <button class="btn btn--gold"  id="modal-next" data-i18n="btn_next">Dalej</button>
-        <button class="btn btn--gold is-hidden" id="modal-submit" type="submit" form="booking-form">
+        <button class="btn btn--gold"  id="modal-next">
+          <span class="btn__label" data-i18n="btn_next">Dalej</span>
+          <span class="btn__spinner" aria-hidden="true"></span>
+        </button>
+        <button class="btn btn--gold is-hidden" id="modal-submit" type="button">
           <span class="btn__label" data-i18n="btn_confirm">Potwierdź rezerwację</span>
           <span class="btn__spinner" aria-hidden="true"></span>
         </button>

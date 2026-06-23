@@ -176,14 +176,13 @@
     if (!rows.length) { tbody.innerHTML = ''; return; }
 
     tbody.innerHTML = rows.map(bk => {
-      const date   = bk.date ? fmtDate(bk.date) : '—';
-      const badge  = `<span class="badge badge--${bk.status}">${statusLabel(bk.status)}</span>`;
-      const acts   = buildActions(bk);
+      const date  = bk.date ? fmtDate(bk.date) : '—';
+      const time  = fmtTime(bk.time);
+      const badge = `<span class="badge badge--${bk.status}">${statusLabel(bk.status)}</span>`;
+      const acts  = buildActions(bk);
       return `<tr data-id="${esc(bk.id)}">
-        <td>${date}</td>
-        <td>${esc(bk.time||'—')}</td>
-        <td><strong>${esc(bk.clientName||'—')}</strong></td>
-        <td class="col-muted">${esc(bk.clientPhone||'—')}</td>
+        <td><strong>${date}</strong><br><small class="col-muted">${time}</small></td>
+        <td><strong>${esc(bk.clientName||'—')}</strong><br><small class="col-muted">${esc(bk.clientPhone||'—')}</small></td>
         <td>${esc(bk.serviceName||'—')}</td>
         <td class="col-muted">${esc(bk.barberName||'—')}</td>
         <td>${badge}</td>
@@ -500,6 +499,15 @@
   function fmtDate(iso) {
     return new Date(iso + 'T12:00:00')
       .toLocaleDateString('pl-PL', { day:'2-digit', month:'2-digit', year:'numeric' });
+  }
+
+  function fmtTime(raw) {
+    if (!raw) return '—';
+    const s = String(raw);
+    if (/^\d{1,2}:\d{2}/.test(s)) return s.substring(0, 5);
+    const d = new Date(s);
+    if (!isNaN(d.getTime())) return d.toLocaleTimeString('pl-PL', { hour:'2-digit', minute:'2-digit' });
+    return s.substring(0, 5);
   }
 
   function esc(str) {

@@ -104,10 +104,22 @@ function createBooking(d) {
   if (!d.clientPhone && !d.phone)
     return { success: false, error: 'Missing phone number' };
 
-  /* Double-booking guard */
-  const taken = getTakenSlots(d.date, d.barberId || null);
-  if (taken.includes(d.time))
-    return { success: false, error: 'Slot is already booked' };
+  /* Double-booking guard + auto-assign barber when "any" selected */
+  const isAny = !d.barberId || d.barberId === 'any';
+  if (isAny) {
+    const barbers = getBarbers().filter(function(b) { return b.active !== false; });
+    var assigned = null;
+    for (var bi = 0; bi < barbers.length; bi++) {
+      var barberTaken = getTakenSlots(d.date, barbers[bi].id);
+      if (!barberTaken.includes(d.time)) { assigned = barbers[bi]; break; }
+    }
+    if (!assigned) return { success: false, error: 'Slot is already booked' };
+    d.barberId   = assigned.id;
+    d.barberName = assigned.name;
+  } else {
+    const taken = getTakenSlots(d.date, d.barberId);
+    if (taken.includes(d.time)) return { success: false, error: 'Slot is already booked' };
+  }
 
   const id   = Utilities.getUuid();
   const code = generateCode();
@@ -273,7 +285,7 @@ function getBarbersSheet() {
     sh.appendRow(['ID','Name','Spec','Avatar','Services','Availability','Active']);
     sh.setFrozenRows(1);
     sh.getRange(1,1,1,7).setFontWeight('bold').setBackground('#1a1a1a').setFontColor('#C6A769');
-    sh.appendRow(['b1','Mirowski','Master Barber','Photos/ЛОГО.jpeg','s1,s2,s3,s4,s5,s6','1,2,3,4,5,6','true']);
+    sh.appendRow(['b1','Mirowski','Master Barber','Photos/logo.jpeg','s1,s2,s3,s4,s5,s6','1,2,3,4,5,6','true']);
     sh.appendRow(['b2','Aleksander','Senior Barber','','s1,s2,s3,s5','1,2,3,4,5,6','true']);
   }
   return sh;

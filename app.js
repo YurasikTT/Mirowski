@@ -63,7 +63,7 @@ const SheetsAPI = (() => {
       return Array.isArray(res) ? res : (res?.taken || []);
     },
     createBooking: payload         => request('createBooking', payload),
-    updateStatus:  (token, id, st) => request('updateStatus', { token, id, status: st }),
+    updateStatus:  (key, id, st) => request('updateStatus', { key, id, status: st }),
     /* Returns barber array from backend, or null if unavailable */
     getBarbers: async () => {
       const res = await request('getBarbers', {});
@@ -112,12 +112,16 @@ const CursorModule = (() => {
       el.addEventListener('mouseleave', () => wrap.classList.remove(hover));
     });
 
-    (function loop() {
-      rx += (mx - rx) * .07; ry += (my - ry) * .07;
-      dot.style.cssText  = `left:${mx}px;top:${my}px`;
-      ring.style.cssText = `left:${rx}px;top:${ry}px`;
-      requestAnimationFrame(loop);
-    })();
+    let _cursorRaf;
+    function _cursorLoop() {
+      if (!document.hidden) {
+        rx += (mx - rx) * .07; ry += (my - ry) * .07;
+        dot.style.cssText  = `left:${mx}px;top:${my}px`;
+        ring.style.cssText = `left:${rx}px;top:${ry}px`;
+      }
+      _cursorRaf = requestAnimationFrame(_cursorLoop);
+    }
+    _cursorLoop();
   }
   return { init };
 })();
@@ -307,15 +311,18 @@ const HeroModule = (() => {
       renderer.setSize(nW, nH);
     }, { passive: true });
 
-    (function loop() {
-      requestAnimationFrame(loop);
+    let _heroRaf;
+    function _heroLoop() {
+      _heroRaf = requestAnimationFrame(_heroLoop);
+      if (document.hidden) return;
       const t = clock.getElapsedTime();
       particles.rotation.y  = t * .03;
       particles.rotation.x  = t * .01;
       particles.rotation.y += (mx * .12 - particles.rotation.y) * .025;
       particles.rotation.x += (my * .07 - particles.rotation.x) * .025;
       renderer.render(scene, camera);
-    })();
+    }
+    _heroLoop();
   }
 
   function animateEntrance() {
@@ -461,12 +468,13 @@ const GalleryModule = (() => {
     }
 
     function goTo(idx) {
-      if (busy) return;
+      if (busy) return false;
       busy = true;
       cur = ((idx % total) + total) % total;
       applyClasses();
       animateSlides(false);
       setTimeout(() => { busy = false; }, 680);
+      return true;
     }
 
     prevBtn?.addEventListener('click', () => goTo(cur - 1));
@@ -491,6 +499,9 @@ const GalleryModule = (() => {
 
     document.addEventListener('keydown', e => {
       if (lightbox?.classList.contains('is-open')) return;
+      if (document.querySelector('.modal.is-open')) return;
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
       if (e.key === 'ArrowLeft')  goTo(cur - 1);
       if (e.key === 'ArrowRight') goTo(cur + 1);
     });
@@ -526,14 +537,14 @@ const GalleryModule = (() => {
 
     if (lightbox) {
       lightbox.querySelector('.lightbox__close')?.addEventListener('click', closeLb);
-      lightbox.querySelector('.lightbox__prev') ?.addEventListener('click', () => { goTo(cur - 1); setTimeout(openLb, 50); });
-      lightbox.querySelector('.lightbox__next') ?.addEventListener('click', () => { goTo(cur + 1); setTimeout(openLb, 50); });
+      lightbox.querySelector('.lightbox__prev') ?.addEventListener('click', () => { if (goTo(cur - 1)) openLb(); });
+      lightbox.querySelector('.lightbox__next') ?.addEventListener('click', () => { if (goTo(cur + 1)) openLb(); });
       lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLb(); });
       document.addEventListener('keydown', e => {
         if (!lightbox.classList.contains('is-open')) return;
         if (e.key === 'Escape')     closeLb();
-        if (e.key === 'ArrowLeft')  { goTo(cur - 1); setTimeout(openLb, 50); }
-        if (e.key === 'ArrowRight') { goTo(cur + 1); setTimeout(openLb, 50); }
+        if (e.key === 'ArrowLeft')  { if (goTo(cur - 1)) openLb(); }
+        if (e.key === 'ArrowRight') { if (goTo(cur + 1)) openLb(); }
       });
     }
 
@@ -937,7 +948,7 @@ const BookingModule = (() => {
       const sp = localize(b.spec, lang);
       const av = b.avatar
         ? `<img src="${b.avatar}" alt="${nm}" class="modal-barber-card__avatar" loading="lazy">`
-        : `<div class="modal-barber-card__avatar">&#9986;</div>`;
+        : `<div class="modal-barber-card__avatar modal-barber-card__avatar--default"><svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="20" cy="14" r="8" fill="%23C6A769" opacity=".55"/><path d="M4 40c0-8.8 7.2-16 16-16s16 7.2 16 16" fill="%23C6A769" opacity=".55"/></svg></div>`;
       btn.innerHTML = `${av}<div class="modal-barber-card__name">${nm}</div><div class="modal-barber-card__spec">${sp}</div>`;
       btn.addEventListener('click', () => {
         State.set('barber', b);
@@ -1255,14 +1266,14 @@ const I18nModule = (() => {
       benefit_4_title:'500+ задоволених клієнтів', benefit_4_text:'Довіра, побудована роками в Лодзі.',
       services_eyebrow:'Що ми пропонуємо', services_title:'Наші послуги', services_subtitle:'Кожен візит — унікальний досвід.',
       filter_all:'Усі', filter_beard:'Борода', filter_hair:'Волосся', filter_combo:'Комбо',
-      service_1_name:'Класичне стрижіння', service_1_desc:'Точна стрижка під форму обличчя та стиль życia.',
+      service_1_name:'Класичне стрижіння', service_1_desc:'Точна стрижка під форму обличчя та стиль життя.',
       service_2_name:'Стилізація бороди', service_2_desc:'Формування та догляд за бородою вищого рівня.',
       service_3_name:'Стрижка + Борода', service_3_desc:'Комплексний догляд за волоссям і бородою за один візит.',
       service_4_name:'Гоління бритвою', service_4_desc:'Традиційне гоління бритвою з гарячим рушником.',
       service_5_name:'Стрижка машинкою', service_5_desc:'Швидка та точна стрижка машинкою з обробкою.',
       service_6_name:'Повний пакет', service_6_desc:'Стрижка, борода, гоління та догляд — люксовий пакет.',
       service_popular:'Найпопулярніший', service_book:'Записатися',
-      about_eyebrow:'Наша історія', 'about_title':'Ремесло —<br>це наш спосіб życia', about_badge:'років досвіду',
+      about_eyebrow:'Наша історія', 'about_title':'Ремесло —<br>це наш спосіб життя', about_badge:'років досвіду',
       about_p1:'MIROWSKI BARBERSHOP — місце, де традиція зустрічається з сучасним стилем. Кожен візит — ритуал від першого розрізу до останнього штриху бритвою.',
       about_p2:'Знайдіть нас у серці Лодзя. Наша команда — пристрасні професіонали, для яких кожен клієнт заслуговує особливої уваги.',
       about_cta:'Ознайомитися з послугами', stat_years:'Років досвіду', stat_clients:'Клієнтів на місяць', stat_rating:'Оцінка Google',
@@ -1345,17 +1356,26 @@ const App = (() => {
     TestimonialsModule.init();
     BookingModule.init();
 
-    /* Language switcher — applies full translation on click */
-    document.querySelectorAll('.lang-btn[data-lang]').forEach(btn =>
+    /* Language switcher — persists choice in localStorage */
+    const _savedLang = ['pl','en','uk'].includes(localStorage.getItem('mir_lang'))
+      ? localStorage.getItem('mir_lang') : 'pl';
+    State.set('lang', _savedLang);
+
+    document.querySelectorAll('.lang-btn[data-lang]').forEach(btn => {
+      if (btn.dataset.lang === _savedLang) {
+        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+      }
       btn.addEventListener('click', () => {
         const lang = btn.dataset.lang;
         State.set('lang', lang);
+        localStorage.setItem('mir_lang', lang);
         document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('is-active'));
         btn.classList.add('is-active');
         I18nModule.apply(lang);
-      })
-    );
-    I18nModule.apply('pl'); /* apply default language */
+      });
+    });
+    I18nModule.apply(_savedLang);
   }
 
   return { init };

@@ -84,6 +84,30 @@
     bindFilters();
     bindSortHeaders();
     stamp();
+    /* Load barbers for filter immediately after login */
+    api('POST', { action:'getBarbers', key: adminKey })
+      .then(res => {
+        if (res?.barbers) {
+          _allBarbers = res.barbers;
+          _barbersLoaded = true;
+          populateBarberFilter(res.barbers);
+        }
+      })
+      .catch(() => { /* filter stays at "all" — non-critical */ });
+  }
+
+  function populateBarberFilter(barbers) {
+    const sel = document.getElementById('f-barber');
+    if (!sel) return;
+    const prev = sel.value;
+    while (sel.options.length > 1) sel.remove(1);
+    barbers.forEach(b => {
+      const opt = document.createElement('option');
+      opt.value = b.id;
+      opt.textContent = b.name + (b.active ? '' : ' (nieaktywny)');
+      sel.appendChild(opt);
+    });
+    if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
   }
 
   function stamp() {
@@ -280,6 +304,7 @@
       _allBarbers = res?.barbers || [];
     } catch { _allBarbers = []; }
     renderBarbers();
+    populateBarberFilter(_allBarbers);
   }
 
   function renderBarbers() {

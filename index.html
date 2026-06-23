@@ -13,7 +13,7 @@
   <meta property="og:site_name"   content="MIROWSKI BARBERSHOP">
   <meta property="og:title"       content="MIROWSKI BARBERSHOP — Łódź">
   <meta property="og:description" content="Twoja broda w najlepszych rękach. Premium barbershop w sercu Łodzi.">
-  <meta property="og:image"       content="assets/images/hero/og-image.jpg">
+  <meta property="og:image"       content="Photos/salon.jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height"content="630">
   <meta property="og:locale"      content="pl_PL">
@@ -24,10 +24,11 @@
   <meta name="twitter:card"        content="summary_large_image">
   <meta name="twitter:title"       content="MIROWSKI BARBERSHOP — Łódź">
   <meta name="twitter:description" content="Twoja broda w najlepszych rękach.">
-  <meta name="twitter:image"       content="assets/images/hero/og-image.jpg">
+  <meta name="twitter:image"       content="Photos/salon.jpeg">
 
   <title>MIROWSKI BARBERSHOP — Premium Barbershop Łódź</title>
-  <link rel="icon" type="image/jpeg" href="Photos/ЛОГО.jpeg">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23080808'/%3E%3Cpath fill='%23C6A769' d='M3 26V6h5l7 11 7-11h7v20h-4V13l-8 11h-2L7 13v13z'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/jpeg" href="Photos/logo.jpeg" sizes="any">
 
   <!-- Schema.org: LocalBusiness + BarberShop -->
   <script type="application/ld+json">
@@ -40,7 +41,7 @@
     "url": "https://mirowski-barbershop.pl",
     "telephone": "+48796000534",
     "priceRange": "$$",
-    "image": "assets/images/hero/og-image.jpg",
+    "image": "Photos/salon.jpeg",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "ul. Piotrkowska",
@@ -67,7 +68,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <!-- Preload critical assets -->
-  <link rel="preload" as="image" href="assets/images/hero/poster.jpg">
+  <link rel="preload" as="image" href="Photos/salon.jpeg">
   <link rel="preload" as="font"  href="https://fonts.gstatic.com/s/cormorantgaramond/v21/co3YmX5slCNuHLi8bLeY9MK7whWMhyjYqXtK.woff2" crossorigin>
 
   <!-- Fonts: display=swap for performance -->
@@ -107,7 +108,7 @@
     <nav class="nav container" aria-label="Nawigacja główna">
 
       <a href="#hero" class="nav__logo" aria-label="MIROWSKI BARBERSHOP — powrót na górę">
-        <img src="Photos/ЛОГО.jpeg" alt="MIROWSKI logo" class="nav__logo-img" width="38" height="38">
+        <img src="Photos/logo.jpeg" alt="MIROWSKI logo" class="nav__logo-img" width="38" height="38">
         <div class="nav__logo-text">
           <span class="nav__logo-name">MIROWSKI</span>
           <span class="nav__logo-sub">BARBERSHOP</span>
@@ -165,12 +166,7 @@
     <section id="hero" class="hero" aria-label="Sekcja główna">
 
       <div class="hero__media" aria-hidden="true">
-        <!-- Replace src with your actual video file -->
-        <video class="hero__video" autoplay muted loop playsinline preload="metadata"
-               poster="assets/images/hero/poster.jpg">
-          <source src="assets/videos/hero.mp4"  type="video/mp4">
-          <source src="assets/videos/hero.webm" type="video/webm">
-        </video>
+        <img class="hero__bg" src="Photos/salon.jpeg" alt="">
         <div class="hero__overlay"></div>
         <canvas id="hero-canvas" class="hero__canvas"></canvas>
       </div>
@@ -321,7 +317,7 @@
           <div class="about__media">
             <div class="about__img-wrap">
               <!-- Replace with actual team photo -->
-              <img src="Photos/салон.jpeg"
+              <img src="Photos/salon.jpeg"
                    alt="MIROWSKI BARBERSHOP — wnętrze salonu"
                    class="about__img" loading="lazy" width="540" height="680"
                    data-parallax="0.12">
@@ -363,7 +359,7 @@
         <div class="gallery__track" id="gallery-track">
 
           <div class="gallery__slide" data-index="0" data-tag="Haircut" data-caption="Classic Cut">
-            <img src="Photos/Портфолио.jpeg" alt="Strzyżenie klasyczne" loading="lazy">
+            <img src="Photos/portfolio0.jpeg" alt="Strzyżenie klasyczne" loading="lazy" decoding="async">
             <div class="gallery__slide-info">
               <span class="gallery__slide-tag">Haircut</span>
               <span class="gallery__slide-caption">Classic Cut</span>
@@ -371,7 +367,7 @@
           </div>
 
           <div class="gallery__slide" data-index="1" data-tag="Beard" data-caption="Beard Sculpt">
-            <img src="Photos/Портфолио1.jpeg" alt="Stylizacja brody" loading="lazy">
+            <img src="Photos/portfolio1.jpeg" alt="Stylizacja brody" loading="lazy" decoding="async">
             <div class="gallery__slide-info">
               <span class="gallery__slide-tag">Beard</span>
               <span class="gallery__slide-caption">Beard Sculpt</span>
@@ -379,7 +375,7 @@
           </div>
 
           <div class="gallery__slide" data-index="2" data-tag="Fade" data-caption="Skin Fade">
-            <img src="Photos/Портфолио2.jpeg" alt="Skin Fade" loading="lazy">
+            <img src="Photos/portfolio2.jpeg" alt="Skin Fade" loading="lazy" decoding="async">
             <div class="gallery__slide-info">
               <span class="gallery__slide-tag">Fade</span>
               <span class="gallery__slide-caption">Skin Fade</span>
@@ -387,7 +383,7 @@
           </div>
 
           <div class="gallery__slide" data-index="3" data-tag="Style" data-caption="Texture &amp; Style">
-            <img src="Photos/Портфолио3.jpeg" alt="Tekstura i styl" loading="lazy">
+            <img src="Photos/portfolio3.jpeg" alt="Tekstura i styl" loading="lazy" decoding="async">
             <div class="gallery__slide-info">
               <span class="gallery__slide-tag">Style</span>
               <span class="gallery__slide-caption">Texture &amp; Style</span>
@@ -395,7 +391,7 @@
           </div>
 
           <div class="gallery__slide" data-index="4" data-tag="Beard" data-caption="Full Beard">
-            <img src="Photos/Портфолио4.jpeg" alt="Pełna broda" loading="lazy">
+            <img src="Photos/portfolio4.jpeg" alt="Pełna broda" loading="lazy" decoding="async">
             <div class="gallery__slide-info">
               <span class="gallery__slide-tag">Beard</span>
               <span class="gallery__slide-caption">Full Beard</span>
@@ -403,7 +399,7 @@
           </div>
 
           <div class="gallery__slide" data-index="5" data-tag="Fade" data-caption="Fade Master">
-            <img src="Photos/Портфолио5.jpeg" alt="Fade masterpiece" loading="lazy">
+            <img src="Photos/portfolio5.jpeg" alt="Fade masterpiece" loading="lazy" decoding="async">
             <div class="gallery__slide-info">
               <span class="gallery__slide-tag">Fade</span>
               <span class="gallery__slide-caption">Fade Master</span>
@@ -411,7 +407,7 @@
           </div>
 
           <div class="gallery__slide" data-index="6" data-tag="Style" data-caption="Pompadour">
-            <img src="Photos/Портфолио6.jpeg" alt="Modern pompadour" loading="lazy">
+            <img src="Photos/portfolio6.jpeg" alt="Modern pompadour" loading="lazy" decoding="async">
             <div class="gallery__slide-info">
               <span class="gallery__slide-tag">Style</span>
               <span class="gallery__slide-caption">Pompadour</span>
@@ -419,7 +415,7 @@
           </div>
 
           <div class="gallery__slide" data-index="7" data-tag="Haircut" data-caption="Undercut">
-            <img src="Photos/Портфолио7.jpeg" alt="Undercut precision" loading="lazy">
+            <img src="Photos/portfolio7.jpeg" alt="Undercut precision" loading="lazy" decoding="async">
             <div class="gallery__slide-info">
               <span class="gallery__slide-tag">Haircut</span>
               <span class="gallery__slide-caption">Undercut</span>
@@ -427,7 +423,7 @@
           </div>
 
           <div class="gallery__slide" data-index="8" data-tag="Combo" data-caption="Full Package">
-            <img src="Photos/Портфолио8.jpeg" alt="Klasyczna stylizacja" loading="lazy">
+            <img src="Photos/portfolio8.jpeg" alt="Klasyczna stylizacja" loading="lazy" decoding="async">
             <div class="gallery__slide-info">
               <span class="gallery__slide-tag">Combo</span>
               <span class="gallery__slide-caption">Full Package</span>
@@ -435,7 +431,7 @@
           </div>
 
           <div class="gallery__slide" data-index="9" data-tag="Premium" data-caption="Premium Finish">
-            <img src="Photos/Портфолио9.jpeg" alt="Premium finish" loading="lazy">
+            <img src="Photos/portfolio9.jpeg" alt="Premium finish" loading="lazy" decoding="async">
             <div class="gallery__slide-info">
               <span class="gallery__slide-tag">Premium</span>
               <span class="gallery__slide-caption">Premium Finish</span>
@@ -482,7 +478,6 @@
             <div class="review-card__stars" aria-label="5 na 5 gwiazdek">★★★★★</div>
             <blockquote class="review-card__text" data-i18n="review_1">"Najlepszy barbershop w Łodzi. Zawsze wychodzę zadowolony!"</blockquote>
             <footer class="review-card__author">
-              <img src="assets/images/reviews/r1.jpg" alt="" class="review-card__avatar" loading="lazy" width="44" height="44" aria-hidden="true">
               <cite class="review-card__name">Marek W.</cite>
             </footer>
           </article>
@@ -490,7 +485,6 @@
             <div class="review-card__stars" aria-label="5 na 5 gwiazdek">★★★★★</div>
             <blockquote class="review-card__text" data-i18n="review_2">"Profesjonalizm na najwyższym poziomie. Polecam każdemu!"</blockquote>
             <footer class="review-card__author">
-              <img src="assets/images/reviews/r2.jpg" alt="" class="review-card__avatar" loading="lazy" width="44" height="44" aria-hidden="true">
               <cite class="review-card__name">Tomasz K.</cite>
             </footer>
           </article>
@@ -498,7 +492,6 @@
             <div class="review-card__stars" aria-label="5 na 5 gwiazdek">★★★★★</div>
             <blockquote class="review-card__text" data-i18n="review_3">"Świetna atmosfera i mistrzowskie strzyżenie. Wracam co miesiąc."</blockquote>
             <footer class="review-card__author">
-              <img src="assets/images/reviews/r3.jpg" alt="" class="review-card__avatar" loading="lazy" width="44" height="44" aria-hidden="true">
               <cite class="review-card__name">Piotr R.</cite>
             </footer>
           </article>
@@ -506,7 +499,6 @@
             <div class="review-card__stars" aria-label="5 na 5 gwiazdek">★★★★★</div>
             <blockquote class="review-card__text" data-i18n="review_4">"Рекомендую! Найкраща перукарня в місті. Чудові результати."</blockquote>
             <footer class="review-card__author">
-              <img src="assets/images/reviews/r4.jpg" alt="" class="review-card__avatar" loading="lazy" width="44" height="44" aria-hidden="true">
               <cite class="review-card__name">Oleksii M.</cite>
             </footer>
           </article>
@@ -514,7 +506,6 @@
             <div class="review-card__stars" aria-label="5 stars">★★★★★</div>
             <blockquote class="review-card__text" data-i18n="review_5">"Exceptional service. Worth every złoty. Best barbers in Lodz."</blockquote>
             <footer class="review-card__author">
-              <img src="assets/images/reviews/r5.jpg" alt="" class="review-card__avatar" loading="lazy" width="44" height="44" aria-hidden="true">
               <cite class="review-card__name">James B.</cite>
             </footer>
           </article>
@@ -562,7 +553,7 @@
           </div>
           <div class="contact__map">
             <iframe title="MIROWSKI BARBERSHOP — mapa dojazdu"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d160156!2d19.455983!3d51.759248!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x471a34b5b0c97783%3A0xb37bba0d4fe93a68!2sLodz%2C%20Poland!5e0!3m2!1spl!2spl"
+              src="https://maps.google.com/maps?q=ul.+Piotrkowska+%C5%81%C3%B3d%C5%BC+Poland&output=embed&hl=pl"
               width="100%" height="420" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade">
             </iframe>
           </div>
@@ -611,7 +602,7 @@
         </div>
       </div>
       <div class="footer__bottom">
-        <p class="footer__copy">&copy; <span id="footer-year">2025</span> MIROWSKI BARBERSHOP. <span data-i18n="footer_rights">Wszelkie prawa zastrzeżone.</span></p>
+        <p class="footer__copy">&copy; <span id="footer-year"></span> MIROWSKI BARBERSHOP. <span data-i18n="footer_rights">Wszelkie prawa zastrzeżone.</span></p>
         <a href="admin.html" class="footer__admin-link" tabindex="-1" aria-hidden="true">&#x2022;</a>
       </div>
     </div>

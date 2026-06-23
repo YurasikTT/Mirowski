@@ -1311,6 +1311,8 @@ p  { max-width: 65ch; }
   background: var(--card-2);
   border: 1px solid rgba(198,167,105,.1);
   box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  opacity: 0;                              /* CSS fallback — GSAP overrides inline */
+  transform: translate(-50%, -50%) scale(.5); /* CSS fallback — GSAP overrides inline */
   pointer-events: none;
   will-change: transform, opacity;
   transition: box-shadow .55s var(--ease-luxury), border-color .55s var(--ease-luxury);
@@ -1359,6 +1361,8 @@ p  { max-width: 65ch; }
 
 /* ─── Active ─── */
 .gallery__slide.is-active {
+  opacity: 1;                          /* CSS fallback if GSAP fails */
+  transform: translate(-50%, -50%);   /* CSS fallback if GSAP fails */
   pointer-events: auto;
   cursor: zoom-in;
   z-index: 3;

@@ -355,48 +355,193 @@ const ServicesModule = (() => {
 })();
 
 /* ================================================================
-   §9 GALLERY + LIGHTBOX
+   §9 GALLERY SLIDER + LIGHTBOX  (GSAP-powered transitions)
 ================================================================ */
 const GalleryModule = (() => {
   function init() {
-    const items    = [...document.querySelectorAll('.gallery__item[data-index]')];
+    const track    = document.getElementById('gallery-track');
+    const dotsEl   = document.getElementById('gallery-dots');
+    const prevBtn  = document.getElementById('gallery-prev');
+    const nextBtn  = document.getElementById('gallery-next');
     const lightbox = document.getElementById('lightbox');
-    if (!items.length || !lightbox) return;
+    if (!track || typeof gsap === 'undefined') return;
 
+    const slides = [...track.querySelectorAll('.gallery__slide')];
+    const total  = slides.length;
     let cur = 0;
-    const img     = lightbox.querySelector('.lightbox__img');
-    const caption = lightbox.querySelector('.lightbox__caption');
+    let busy = false;
 
-    const open = idx => {
-      cur = idx;
-      const el  = items[cur];
-      const src = el.dataset.src || el.querySelector('img')?.src || '';
-      const alt = el.querySelector('img')?.alt || '';
-      if (img) { img.style.opacity = '0'; img.src = src; img.alt = alt; img.addEventListener('load', () => img.style.opacity = '1', { once: true }); }
-      if (caption) caption.textContent = alt;
+    // Center all slides via GSAP (replaces CSS translate(-50%,-50%))
+    gsap.set(slides, { xPercent: -50, yPercent: -50, scale: 0.5, opacity: 0 });
+
+    // Build dots
+    if (dotsEl) {
+      slides.forEach((_, i) => {
+        const dot = document.createElement('button');
+        dot.className = 'gallery__dot';
+        dot.setAttribute('aria-label', `Zdjęcie ${i + 1}`);
+        dot.addEventListener('click', () => goTo(i));
+        dotsEl.appendChild(dot);
+      });
+    }
+
+    function sideOffset() {
+      return window.innerWidth <= 960 ? 290 : 340;
+    }
+
+    // Update CSS classes (z-index, cursor, box-shadow, pointer-events)
+    function applyClasses() {
+      const dots = dotsEl ? [...dotsEl.querySelectorAll('.gallery__dot')] : [];
+      slides.forEach((slide, i) => {
+        slide.classList.remove('is-active', 'is-prev', 'is-next');
+        const diff = ((i - cur) % total + total) % total;
+        if (diff === 0)              slide.classList.add('is-active');
+        else if (diff === 1)         slide.classList.add('is-next');
+        else if (diff === total - 1) slide.classList.add('is-prev');
+      });
+      dots.forEach((d, i) => d.classList.toggle('is-active', i === cur));
+    }
+
+    // GSAP animates every slide to its correct position/state
+    function animateSlides(instant) {
+      const ox = sideOffset();
+      const mobile = window.innerWidth <= 600;
+
+      slides.forEach((slide, i) => {
+        const diff = ((i - cur) % total + total) % total;
+        gsap.killTweensOf(slide);
+
+        if (diff === 0) {
+          // ── Incoming active: spring-pop with brightness flash ──
+          gsap.to(slide, {
+            x: 0, y: 0, scale: 1, opacity: 1, rotateY: 0,
+            duration: instant ? 0 : 0.95,
+            ease: instant ? 'none' : 'elastic.out(1, 0.7)',
+          });
+          if (!instant) {
+            gsap.fromTo(slide,
+              { filter: 'brightness(2.4) blur(12px)' },
+              { filter: 'brightness(1) blur(0px)', duration: 0.9, ease: 'power3.out', clearProps: 'filter' }
+            );
+          }
+
+        } else if (diff === 1) {
+          // ── Next slide (right) ──
+          gsap.to(slide, {
+            x: mobile ? window.innerWidth + 60 : ox,
+            y: mobile ? 0 : 28,
+            scale: mobile ? 0.85 : 0.72,
+            opacity: mobile ? 0 : 0.38,
+            rotateY: mobile ? 0 : -20,
+            duration: instant ? 0 : 0.78,
+            ease: instant ? 'none' : 'expo.out',
+          });
+
+        } else if (diff === total - 1) {
+          // ── Prev slide (left) ──
+          gsap.to(slide, {
+            x: mobile ? -(window.innerWidth + 60) : -ox,
+            y: mobile ? 0 : 28,
+            scale: mobile ? 0.85 : 0.72,
+            opacity: mobile ? 0 : 0.38,
+            rotateY: mobile ? 0 : 20,
+            duration: instant ? 0 : 0.78,
+            ease: instant ? 'none' : 'expo.out',
+          });
+
+        } else {
+          // ── Hidden: tuck behind center ──
+          gsap.to(slide, {
+            x: 0, y: 0, scale: 0.5, opacity: 0, rotateY: 0,
+            duration: instant ? 0 : 0.42,
+            ease: instant ? 'none' : 'expo.in',
+          });
+        }
+      });
+    }
+
+    function goTo(idx) {
+      if (busy) return;
+      busy = true;
+      cur = ((idx % total) + total) % total;
+      applyClasses();
+      animateSlides(false);
+      setTimeout(() => { busy = false; }, 680);
+    }
+
+    prevBtn?.addEventListener('click', () => goTo(cur - 1));
+    nextBtn?.addEventListener('click', () => goTo(cur + 1));
+
+    slides.forEach(slide => {
+      slide.addEventListener('click', () => {
+        if (slide.classList.contains('is-prev'))   { goTo(cur - 1); return; }
+        if (slide.classList.contains('is-next'))   { goTo(cur + 1); return; }
+        if (slide.classList.contains('is-active') && lightbox) openLb();
+      });
+    });
+
+    // Swipe
+    let tx = 0, ty = 0;
+    track.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+    track.addEventListener('touchend',   e => {
+      const dx = e.changedTouches[0].clientX - tx;
+      const dy = e.changedTouches[0].clientY - ty;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 44) goTo(cur + (dx > 0 ? -1 : 1));
+    }, { passive: true });
+
+    document.addEventListener('keydown', e => {
+      if (lightbox?.classList.contains('is-open')) return;
+      if (e.key === 'ArrowLeft')  goTo(cur - 1);
+      if (e.key === 'ArrowRight') goTo(cur + 1);
+    });
+
+    // ─── Lightbox ───
+    let _lbScrollY = 0;
+
+    function openLb() {
+      if (!lightbox) return;
+      const slide = slides[cur];
+      const lbImg = lightbox.querySelector('.lightbox__img');
+      const lbCap = lightbox.querySelector('.lightbox__caption');
+      const src = slide.querySelector('img')?.src || '';
+      const alt = slide.querySelector('img')?.alt || '';
+      if (lbImg) { lbImg.style.opacity = '0'; lbImg.src = src; lbImg.alt = alt; lbImg.addEventListener('load', () => { lbImg.style.opacity = '1'; }, { once: true }); }
+      if (lbCap) lbCap.textContent = slide.dataset.caption || alt;
+      _lbScrollY = window.scrollY;
+      document.body.style.top = `-${_lbScrollY}px`;
+      document.body.style.width = '100%';
       lightbox.classList.add('is-open');
       document.body.classList.add('modal-open');
       if (window.lenis) window.lenis.stop();
-    };
-    const close = () => {
+    }
+    function closeLb() {
+      if (!lightbox) return;
       lightbox.classList.remove('is-open');
       document.body.classList.remove('modal-open');
+      document.body.style.top = '';
+      document.body.style.width = '';
+      window.scrollTo({ top: _lbScrollY, behavior: 'instant' });
       if (window.lenis) window.lenis.start();
-    };
-    const nav = d => open((cur + d + items.length) % items.length);
+    }
 
-    items.forEach((el, i) => el.addEventListener('click', () => open(i)));
-    lightbox.querySelector('.lightbox__close')?.addEventListener('click', close);
-    lightbox.querySelector('.lightbox__prev') ?.addEventListener('click', () => nav(-1));
-    lightbox.querySelector('.lightbox__next') ?.addEventListener('click', () => nav( 1));
-    lightbox.addEventListener('click', e => { if (e.target === lightbox) close(); });
-    document.addEventListener('keydown', e => {
-      if (!lightbox.classList.contains('is-open')) return;
-      if (e.key === 'Escape')     close();
-      if (e.key === 'ArrowLeft')  nav(-1);
-      if (e.key === 'ArrowRight') nav(1);
-    });
+    if (lightbox) {
+      lightbox.querySelector('.lightbox__close')?.addEventListener('click', closeLb);
+      lightbox.querySelector('.lightbox__prev') ?.addEventListener('click', () => { goTo(cur - 1); setTimeout(openLb, 50); });
+      lightbox.querySelector('.lightbox__next') ?.addEventListener('click', () => { goTo(cur + 1); setTimeout(openLb, 50); });
+      lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLb(); });
+      document.addEventListener('keydown', e => {
+        if (!lightbox.classList.contains('is-open')) return;
+        if (e.key === 'Escape')     closeLb();
+        if (e.key === 'ArrowLeft')  { goTo(cur - 1); setTimeout(openLb, 50); }
+        if (e.key === 'ArrowRight') { goTo(cur + 1); setTimeout(openLb, 50); }
+      });
+    }
+
+    // Initial positioning (instant, no animation)
+    applyClasses();
+    animateSlides(true);
   }
+
   return { init };
 })();
 

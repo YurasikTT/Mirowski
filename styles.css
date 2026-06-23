@@ -1279,51 +1279,59 @@ p  { max-width: 65ch; }
 .stat__lbl { font-size: var(--text-xs); color: var(--muted); letter-spacing: .06em; }
 
 /* ================================================================
-   §17 GALLERY — CSS Masonry (column-count)
+   §17 GALLERY — Premium Grid Showcase
 ================================================================ */
 .gallery { background: var(--bg); padding-bottom: 0; }
 
 .gallery__grid {
-  columns: 3;
-  column-gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
   padding-inline: var(--container-pad);
   margin-top: var(--sp-10);
+  max-width: 1440px;
+  margin-inline: auto;
 }
 
 .gallery__item {
-  break-inside: avoid;
-  -webkit-column-break-inside: avoid;
-  display: block;
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  border-radius: var(--r-md);
-  margin-bottom: 6px;
+  border-radius: var(--r-xl);
   background: var(--card-2);
+  border: 1px solid rgba(198,167,105,.18);
+  box-shadow: 0 8px 32px rgba(0,0,0,.45), 0 2px 8px rgba(0,0,0,.3);
+  height: 360px;
+  will-change: transform;
+  transition:
+    border-color .55s var(--ease-luxury),
+    box-shadow   .55s var(--ease-luxury),
+    transform    .55s var(--ease-luxury);
 }
 
-/* Images keep their natural aspect ratio */
 .gallery__item img {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
+  object-fit: cover;
+  object-position: center top;
   transition: transform .75s var(--ease-luxury), filter .5s var(--ease-luxury);
-  filter: grayscale(.08) brightness(.95);
+  filter: grayscale(.08) brightness(.92);
   will-change: transform;
 }
 
-/* Gold shimmer overlay on hover */
+/* Gradient overlay — visible on hover */
 .gallery__overlay {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to top, rgba(8,8,8,.88) 0%, rgba(8,8,8,.0) 55%),
-    linear-gradient(135deg, rgba(198,167,105,.08) 0%, transparent 60%);
+    linear-gradient(to top, rgba(8,8,8,.92) 0%, rgba(8,8,8,.3) 45%, transparent 70%),
+    linear-gradient(135deg, rgba(198,167,105,.06) 0%, transparent 60%);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-end;
-  padding: var(--sp-5) var(--sp-5) var(--sp-6);
+  padding: 24px;
   opacity: 0;
   transition: opacity .42s var(--ease-luxury);
 }
@@ -1332,19 +1340,21 @@ p  { max-width: 65ch; }
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%,-50%) scale(.7);
-  width: 48px; height: 48px;
-  border: 1.5px solid rgba(198,167,105,.7);
+  width: 52px; height: 52px;
+  border: 1.5px solid rgba(198,167,105,.8);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   color: var(--gold);
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   opacity: 0;
+  background: rgba(8,8,8,.25);
+  backdrop-filter: blur(4px);
   transition: opacity .35s var(--ease-luxury), transform .4s var(--ease-luxury);
 }
 
 .gallery__caption {
   font-family: var(--font-display);
-  font-size: var(--text-xl);
+  font-size: var(--text-lg);
   font-weight: 300;
   color: var(--white);
   letter-spacing: .04em;
@@ -1356,18 +1366,26 @@ p  { max-width: 65ch; }
 
 .gallery__tag {
   font-size: var(--text-2xs);
-  letter-spacing: .2em;
+  letter-spacing: .22em;
   text-transform: uppercase;
   color: var(--gold);
-  margin-bottom: var(--sp-2);
+  margin-bottom: 6px;
   display: block;
   transform: translateY(8px);
   transition: transform .4s .05s var(--ease-luxury);
 }
 
-/* Hover states */
+/* Hover */
+.gallery__item:hover {
+  border-color: rgba(198,167,105,.5);
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.6),
+    0 0 0 1px rgba(198,167,105,.25),
+    0 0 40px rgba(198,167,105,.08);
+  transform: translateY(-5px);
+}
 .gallery__item:hover img {
-  transform: scale(1.06);
+  transform: scale(1.05);
   filter: grayscale(0) brightness(1);
 }
 .gallery__item:hover .gallery__overlay { opacity: 1; }
@@ -1375,19 +1393,7 @@ p  { max-width: 65ch; }
 .gallery__item:hover .gallery__caption  { transform: translateY(0); }
 .gallery__item:hover .gallery__tag      { transform: translateY(0); }
 
-/* Gold top border slide-in on hover */
-.gallery__item::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: var(--grad-gold);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform .5s var(--ease-luxury);
-  z-index: 2;
-}
-.gallery__item:hover::after { transform: scaleX(1); }
+.gallery__item::after { display: none; }
 
 /* ================================================================
    §18 TESTIMONIALS
@@ -1684,8 +1690,10 @@ img.modal-barber-card__avatar { display: block; }
   .contact__layout { grid-template-columns: 1fr; }
 
   .gallery__grid {
-    columns: 2;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
   }
+  .gallery__item { height: 300px; }
 
   .footer__top { grid-template-columns: 1fr; gap: var(--sp-8); }
   .footer__brand { grid-column: span 1; }
@@ -1695,7 +1703,8 @@ img.modal-barber-card__avatar { display: block; }
   .services__grid     { grid-template-columns: 1fr; }
   .benefits__grid     { grid-template-columns: 1fr; }
   .about__stats       { grid-template-columns: repeat(3, 1fr); }
-  .gallery__grid      { columns: 2; }
+  .gallery__grid      { grid-template-columns: 1fr; gap: 14px; padding-inline: var(--sp-5); }
+  .gallery__item      { height: 280px; }
 
   .hero__meta { display: none; }
   .hero__title { font-size: clamp(3rem, 14vw, 5rem); }

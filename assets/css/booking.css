@@ -1,0 +1,381 @@
+/* ================================================================
+   BOOKING.CSS — Wizard UI: cards · transitions · calendar · result
+   Extends base components.css for booking-specific elements.
+   MIROWSKI BARBERSHOP
+================================================================ */
+
+/* ── Shake animation ── */
+@keyframes shake {
+  0%, 100% { transform: translateX(0) scale(1); }
+  15%       { transform: translateX(-7px) scale(1.005); }
+  30%       { transform: translateX(7px)  scale(.995); }
+  50%       { transform: translateX(-5px); }
+  70%       { transform: translateX(5px); }
+  85%       { transform: translateX(-2px); }
+}
+
+/* ── Validation toast (inline feedback bar) ── */
+.modal__toast {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin: var(--sp-3) var(--sp-8) 0;
+  padding: var(--sp-2) var(--sp-5);
+  background: rgba(224,82,82,.1);
+  border: 1px solid rgba(224,82,82,.22);
+  border-radius: var(--r-sm);
+  color: var(--error);
+  font-size: var(--text-xs);
+  letter-spacing: .04em;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity .22s, transform .25s var(--ease-luxury);
+  pointer-events: none;
+}
+
+.modal__toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Step layout ── */
+.modal__step {
+  padding: var(--sp-4) var(--sp-8) var(--sp-6);
+  min-height: 220px;
+  transition: opacity .24s var(--ease-luxury), transform .24s var(--ease-luxury);
+}
+
+.modal__step.is-exit-left  { opacity: 0; transform: translateX(-22px); pointer-events: none; }
+.modal__step.is-exit-right { opacity: 0; transform: translateX(22px);  pointer-events: none; }
+.modal__step.is-enter      { opacity: 0; transform: translateX(14px); }
+
+/* ── Step grid (services) ── */
+.step__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--sp-4);
+}
+
+.step__grid--barbers {
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: var(--sp-4);
+}
+
+/* ================================================================
+   SERVICE CARD (inside modal)
+================================================================ */
+.modal-service-card {
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: var(--sp-5) var(--sp-5) var(--sp-4);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  outline: none;
+  transition:
+    border-color var(--dur-base) var(--ease-luxury),
+    background   var(--dur-base),
+    transform    var(--dur-base) var(--ease-luxury);
+}
+
+.modal-service-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: var(--grad-gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-base) var(--ease-luxury);
+}
+
+.modal-service-card:hover {
+  border-color: var(--border-gold);
+  transform: translateY(-2px);
+}
+
+.modal-service-card:focus-visible { border-color: var(--gold); }
+
+.modal-service-card.is-selected {
+  border-color: var(--gold);
+  background: rgba(198,167,105,.06);
+}
+
+.modal-service-card.is-selected::before { transform: scaleX(1); }
+
+.modal-service-card.is-selected::after {
+  content: '✓';
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  width: 20px;
+  height: 20px;
+  background: var(--grad-gold);
+  color: var(--bg);
+  font-size: .6rem;
+  font-weight: 700;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-service-card__name {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: var(--sp-3);
+}
+
+.modal-service-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-service-card__price {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: -.02em;
+  line-height: 1;
+}
+
+.modal-service-card__duration {
+  font-size: var(--text-xs);
+  color: var(--muted-dk);
+  letter-spacing: .08em;
+}
+
+/* ================================================================
+   BARBER CARD (inside modal)
+================================================================ */
+.modal-barber-card {
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: var(--sp-6) var(--sp-4) var(--sp-5);
+  cursor: pointer;
+  text-align: center;
+  position: relative;
+  outline: none;
+  transition:
+    border-color var(--dur-base) var(--ease-luxury),
+    background   var(--dur-base),
+    transform    var(--dur-base) var(--ease-luxury);
+}
+
+.modal-barber-card:hover {
+  border-color: var(--border-gold);
+  transform: translateY(-2px);
+}
+
+.modal-barber-card:focus-visible { border-color: var(--gold); }
+
+.modal-barber-card.is-selected {
+  border-color: var(--gold);
+  background: rgba(198,167,105,.06);
+}
+
+.modal-barber-card.is-selected::after {
+  content: '✓';
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  width: 20px;
+  height: 20px;
+  background: var(--grad-gold);
+  color: var(--bg);
+  font-size: .6rem;
+  font-weight: 700;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-barber-card__avatar {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+  margin: 0 auto var(--sp-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: rgba(198,167,105,.08);
+  color: var(--gold);
+  font-size: 1.7rem;
+  transition: border-color var(--dur-base), box-shadow var(--dur-base);
+}
+
+img.modal-barber-card__avatar { display: block; }
+
+.modal-barber-card.is-selected .modal-barber-card__avatar {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(198,167,105,.18);
+}
+
+.modal-barber-card__name {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: var(--sp-1);
+}
+
+.modal-barber-card__spec {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  letter-spacing: .05em;
+}
+
+/* ================================================================
+   BOOKING SUMMARY (step 4)
+================================================================ */
+.booking-summary {
+  background: rgba(198,167,105,.04);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--r-md);
+  padding: var(--sp-4) var(--sp-5);
+  margin-bottom: var(--sp-5);
+}
+
+.booking-summary__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-6);
+  padding-block: var(--sp-2);
+}
+
+.booking-summary__row + .booking-summary__row { border-top: 1px solid var(--border); }
+
+.booking-summary__label {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.booking-summary__val {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--white);
+  text-align: right;
+}
+
+.booking-summary__val--gold {
+  color: var(--gold);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+}
+
+/* ================================================================
+   TIMESLOTS
+================================================================ */
+.timeslots {
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--border);
+}
+
+.timeslots__prompt {
+  font-size: var(--text-sm);
+  color: var(--muted-dk);
+  text-align: center;
+  padding: var(--sp-8) 0;
+  letter-spacing: .05em;
+}
+
+.timeslots__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+  gap: var(--sp-2);
+}
+
+/* ================================================================
+   RESULT SCREENS (success / error)
+================================================================ */
+.booking-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--sp-4);
+  padding: var(--sp-10) var(--sp-6);
+}
+
+.booking-result__icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.85rem;
+  font-weight: 300;
+  flex-shrink: 0;
+}
+
+.booking-result--success .booking-result__icon {
+  background: rgba(76,175,80,.1);
+  color: #4caf50;
+  border: 1px solid rgba(76,175,80,.22);
+}
+
+.booking-result--error .booking-result__icon {
+  background: rgba(224,82,82,.1);
+  color: var(--error);
+  border: 1px solid rgba(224,82,82,.22);
+}
+
+.booking-result h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  color: var(--white);
+}
+
+.booking-result p {
+  color: var(--muted);
+  max-width: 36ch;
+  line-height: 1.6;
+}
+
+.booking-result__code {
+  font-size: var(--text-xl);
+  color: var(--gold);
+  letter-spacing: .2em;
+  font-weight: 600;
+  font-family: var(--font-body);
+  background: rgba(198,167,105,.06);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--r-md);
+  padding: var(--sp-3) var(--sp-8);
+  margin-top: var(--sp-2);
+}
+
+/* ================================================================
+   RESPONSIVE
+================================================================ */
+@media (max-width: 560px) {
+  .modal__step     { padding-inline: var(--sp-5); }
+  .modal__toast    { margin-inline: var(--sp-5); }
+  .step__grid      { grid-template-columns: 1fr; }
+  .step__grid--barbers { grid-template-columns: repeat(2, 1fr); }
+  .booking-result  { padding-inline: var(--sp-4); }
+}
+
+@media (max-width: 400px) {
+  .step__grid--barbers { grid-template-columns: 1fr; }
+}

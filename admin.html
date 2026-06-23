@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin — MIROWSKI BARBERSHOP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       AUTH GATE — shown until valid key is provided
+  ============================================================ -->
+  <div id="auth-gate" class="auth-gate">
+    <div class="auth-card">
+      <p class="auth-eyebrow">MIROWSKI</p>
+      <h1 class="auth-title">Panel Admina</h1>
+      <form id="auth-form" class="auth-form" novalidate>
+        <div class="auth-field">
+          <input type="password" id="auth-pin" class="auth-input"
+                 placeholder="Hasło dostępu" autocomplete="current-password"
+                 aria-label="Hasło dostępu">
+        </div>
+        <button type="submit" class="auth-btn" id="auth-submit">
+          <span class="auth-btn__label">Wejdź</span>
+          <span class="auth-btn__spinner" aria-hidden="true"></span>
+        </button>
+        <p id="auth-error" class="auth-error" role="alert"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       DASHBOARD — shown after authentication
+  ============================================================ -->
+  <div id="admin-dashboard" class="admin-dashboard is-hidden" aria-live="polite">
+
+    <header class="admin-header">
+      <div class="admin-logo">
+        <span class="admin-logo__badge">M</span>
+        <span class="admin-logo__name">MIROWSKI <em>ADMIN</em></span>
+      </div>
+      <div class="admin-header__right">
+        <span class="admin-header__status" id="last-updated"></span>
+        <button class="adm-btn adm-btn--ghost" id="btn-refresh" title="Odśwież dane">↻</button>
+        <button class="adm-btn adm-btn--ghost" id="btn-logout">Wyloguj</button>
+      </div>
+    </header>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="stat-card__num" id="stat-total">—</span>
+        <span class="stat-card__lbl">Wszystkich</span>
+      </div>
+      <div class="stat-card stat-card--pending">
+        <span class="stat-card__num" id="stat-pending">—</span>
+        <span class="stat-card__lbl">Oczekujących</span>
+      </div>
+      <div class="stat-card stat-card--confirmed">
+        <span class="stat-card__num" id="stat-confirmed">—</span>
+        <span class="stat-card__lbl">Potwierdzonych</span>
+      </div>
+      <div class="stat-card stat-card--cancelled">
+        <span class="stat-card__num" id="stat-cancelled">—</span>
+        <span class="stat-card__lbl">Anulowanych</span>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-bar">
+      <input  type="date"   id="f-date"   class="adm-input" title="Filtruj po dacie">
+      <select id="f-barber" class="adm-select">
+        <option value="">Wszyscy barberzy</option>
+        <option value="b1">Mirowski</option>
+        <option value="b2">Aleksander</option>
+      </select>
+      <select id="f-status" class="adm-select">
+        <option value="">Wszystkie statusy</option>
+        <option value="pending">Oczekujące</option>
+        <option value="confirmed">Potwierdzone</option>
+        <option value="cancelled">Anulowane</option>
+      </select>
+      <input  type="search" id="f-search" class="adm-input" placeholder="Szukaj klienta…">
+      <button class="adm-btn adm-btn--ghost" id="btn-clear">Wyczyść</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table class="bookings-table" id="bookings-table" aria-label="Lista rezerwacji">
+        <thead>
+          <tr>
+            <th data-sort="date">Data</th>
+            <th data-sort="time">Godz.</th>
+            <th data-sort="clientName">Klient</th>
+            <th>Telefon</th>
+            <th>Usługa</th>
+            <th>Barber</th>
+            <th data-sort="status">Status</th>
+            <th>Akcje</th>
+          </tr>
+        </thead>
+        <tbody id="bookings-body">
+          <tr class="row-loading">
+            <td colspan="8">Ładowanie…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p id="table-empty" class="table-empty is-hidden">Brak rezerwacji spełniających kryteria.</p>
+
+  </div><!-- /#admin-dashboard -->
+
+  <script src="assets/js/admin/dashboard.js"></script>
+</body>
+</html>

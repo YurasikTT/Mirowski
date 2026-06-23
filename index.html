@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="pl" data-lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MIROWSKI BARBERSHOP — Twoja broda w najlepszych rękach. Premium barbershop w Łodzi. Zarezerwuj online 24/7.">
+  <meta name="keywords" content="barbershop łódź, fryzjer męski łódź, strzyżenie łódź, broda łódź, mirowski barbershop">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#080808">
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website">
+  <meta property="og:site_name"   content="MIROWSKI BARBERSHOP">
+  <meta property="og:title"       content="MIROWSKI BARBERSHOP — Łódź">
+  <meta property="og:description" content="Twoja broda w najlepszych rękach. Premium barbershop w sercu Łodzi.">
+  <meta property="og:image"       content="assets/images/hero/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height"content="630">
+  <meta property="og:locale"      content="pl_PL">
+  <meta property="og:locale:alternate" content="en_GB">
+  <meta property="og:locale:alternate" content="uk_UA">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="MIROWSKI BARBERSHOP — Łódź">
+  <meta name="twitter:description" content="Twoja broda w najlepszych rękach.">
+  <meta name="twitter:image"       content="assets/images/hero/og-image.jpg">
+
+  <title>MIROWSKI BARBERSHOP — Premium Barbershop Łódź</title>
+
+  <!-- Schema.org: LocalBusiness + BarberShop -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": ["BarberShop", "LocalBusiness"],
+    "name": "MIROWSKI BARBERSHOP",
+    "description": "Premium barbershop w sercu Łodzi. Strzyżenie, broda, golenie brzytwą.",
+    "slogan": "Twoja broda w najlepszych rękach.",
+    "url": "https://mirowski-barbershop.pl",
+    "telephone": "+48796000534",
+    "priceRange": "$$",
+    "image": "assets/images/hero/og-image.jpg",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "ul. Piotrkowska",
+      "addressLocality": "Łódź",
+      "postalCode": "90-001",
+      "addressCountry": "PL"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "51.759248",
+      "longitude": "19.455983"
+    },
+    "openingHoursSpecification": [
+      { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"], "opens": "09:00", "closes": "20:00" },
+      { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "09:00", "closes": "17:00" }
+    ],
+    "sameAs": ["https://www.instagram.com/mirowskiy7/"],
+    "aggregateRating": { "@type": "AggregateRating", "ratingValue": "5", "reviewCount": "500" }
+  }
+  </script>
+
+  <!-- Preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Preload critical assets -->
+  <link rel="preload" as="image" href="assets/images/hero/poster.jpg">
+  <link rel="preload" as="font"  href="https://fonts.gstatic.com/s/cormorantgaramond/v21/co3YmX5slCNuHLi8bLeY9MK7whWMhyjYqXtK.woff2" crossorigin>
+
+  <!-- Fonts: display=swap for performance -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Single merged stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- CDN libraries loaded at bottom of body -->
+</head>
+<body class="is-loading">
+
+  <!-- Skip link for accessibility -->
+  <a href="#main" class="skip-link">Przejdź do treści</a>
+
+  <!-- ============================================================
+       PAGE LOADER
+  ============================================================ -->
+  <div id="site-loader" class="site-loader" aria-hidden="true">
+    <div class="site-loader__inner">
+      <span class="site-loader__logo">MIROWSKI</span>
+      <div class="site-loader__bar-wrap"><div class="site-loader__bar"></div></div>
+      <span class="site-loader__tagline">Premium Barbershop</span>
+    </div>
+  </div>
+
+  <!-- Custom cursor (desktop) -->
+  <div id="cursor" aria-hidden="true">
+    <div class="cursor__dot"></div>
+    <div class="cursor__ring"></div>
+  </div>
+
+  <!-- ============================================================
+       HEADER / NAV
+  ============================================================ -->
+  <header id="header" class="header" role="banner">
+    <nav class="nav container" aria-label="Nawigacja główna">
+
+      <a href="#hero" class="nav__logo" aria-label="MIROWSKI BARBERSHOP — powrót na górę">
+        <svg class="nav__logo-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+          <path d="M6 3l6 9-6 9M18 3l-6 9 6 9"/>
+        </svg>
+        <div class="nav__logo-text">
+          <span class="nav__logo-name">MIROWSKI</span>
+          <span class="nav__logo-sub">BARBERSHOP</span>
+        </div>
+      </a>
+
+      <ul class="nav__links" role="list">
+        <li><a href="#about"        class="nav__link" data-i18n="nav_about">O nas</a></li>
+        <li><a href="#services"     class="nav__link" data-i18n="nav_services">Usługi</a></li>
+        <li><a href="#gallery"      class="nav__link" data-i18n="nav_gallery">Galeria</a></li>
+        <li><a href="#testimonials" class="nav__link" data-i18n="nav_reviews">Opinie</a></li>
+        <li><a href="#contact"      class="nav__link" data-i18n="nav_contact">Kontakt</a></li>
+      </ul>
+
+      <div class="nav__actions">
+        <div class="lang-switcher" role="group" aria-label="Wybierz język">
+          <button class="lang-btn is-active" data-lang="pl" aria-pressed="true">PL</button>
+          <button class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
+          <button class="lang-btn" data-lang="uk" aria-pressed="false">UK</button>
+        </div>
+        <button class="btn btn--gold btn--sm magnetic" data-booking-open aria-haspopup="dialog" data-i18n="nav_book">Zarezerwuj</button>
+      </div>
+
+      <button class="nav__hamburger" aria-label="Otwórz menu" aria-expanded="false" aria-controls="nav-mobile">
+        <span class="hamburger__line"></span>
+        <span class="hamburger__line"></span>
+        <span class="hamburger__line"></span>
+      </button>
+    </nav>
+
+    <nav id="nav-mobile" class="nav-mobile" aria-hidden="true" aria-label="Menu mobilne">
+      <ul class="nav-mobile__links" role="list">
+        <li><a href="#about"        class="nav-mobile__link" data-i18n="nav_about">O nas</a></li>
+        <li><a href="#services"     class="nav-mobile__link" data-i18n="nav_services">Usługi</a></li>
+        <li><a href="#gallery"      class="nav-mobile__link" data-i18n="nav_gallery">Galeria</a></li>
+        <li><a href="#testimonials" class="nav-mobile__link" data-i18n="nav_reviews">Opinie</a></li>
+        <li><a href="#contact"      class="nav-mobile__link" data-i18n="nav_contact">Kontakt</a></li>
+      </ul>
+      <div class="nav-mobile__footer">
+        <button class="btn btn--gold btn--lg" data-booking-open data-i18n="nav_book">Zarezerwuj wizytę</button>
+        <div class="lang-switcher">
+          <button class="lang-btn is-active" data-lang="pl">PL</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="uk">UK</button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main" role="main">
+
+    <!-- ============================================================
+         HERO
+    ============================================================ -->
+    <section id="hero" class="hero" aria-label="Sekcja główna">
+
+      <div class="hero__media" aria-hidden="true">
+        <!-- Replace src with your actual video file -->
+        <video class="hero__video" autoplay muted loop playsinline preload="metadata"
+               poster="assets/images/hero/poster.jpg">
+          <source src="assets/videos/hero.mp4"  type="video/mp4">
+          <source src="assets/videos/hero.webm" type="video/webm">
+        </video>
+        <div class="hero__overlay"></div>
+        <canvas id="hero-canvas" class="hero__canvas"></canvas>
+      </div>
+
+      <span class="hero__watermark" aria-hidden="true">MIROWSKI</span>
+
+      <div class="hero__content container">
+        <p class="hero__eyebrow" data-i18n="hero_eyebrow">
+          <span class="hero__eyebrow-line" aria-hidden="true"></span>
+          Łódź, Poland
+          <span class="hero__eyebrow-line" aria-hidden="true"></span>
+        </p>
+        <h1 class="hero__title">
+          <span class="hero__title-line" data-i18n="hero_title_1">MIROWSKI</span>
+          <span class="hero__title-line hero__title-line--accent" data-i18n="hero_title_2">BARBERSHOP</span>
+        </h1>
+        <p class="hero__slogan" data-i18n="hero_slogan">Twoja broda w najlepszych rękach.</p>
+        <div class="hero__cta">
+          <button class="btn btn--gold btn--xl magnetic" data-booking-open aria-haspopup="dialog" data-i18n="hero_cta_book">
+            Zarezerwuj wizytę
+          </button>
+          <a href="#services" class="btn btn--ghost btn--xl magnetic" data-i18n="hero_cta_services">
+            Nasze usługi
+          </a>
+        </div>
+      </div>
+
+      <div class="hero__scroll" aria-hidden="true">
+        <div class="hero__scroll-line"></div>
+        <span class="hero__scroll-label">Scroll</span>
+      </div>
+
+      <div class="hero__meta" aria-hidden="true">
+        <div class="hero__meta-item">
+          <span class="hero__meta-label">Tel</span>
+          <span class="hero__meta-value">+48 796 000 534</span>
+        </div>
+        <div class="hero__meta-divider"></div>
+        <div class="hero__meta-item">
+          <span class="hero__meta-label">IG</span>
+          <span class="hero__meta-value">@mirowskiy7</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         BENEFITS
+    ============================================================ -->
+    <section id="benefits" class="benefits section" aria-label="Dlaczego my">
+      <div class="container">
+        <div class="benefits__grid">
+          <article class="benefit-card">
+            <div class="benefit-card__icon" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <h3 class="benefit-card__title" data-i18n="benefit_1_title">10+ lat doświadczenia</h3>
+            <p class="benefit-card__text" data-i18n="benefit_1_text">Profesjonaliści z pasją do rzemiosła barberskiego.</p>
+          </article>
+          <article class="benefit-card">
+            <div class="benefit-card__icon" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3l6 9-6 9M18 3l-6 9 6 9"/></svg>
+            </div>
+            <h3 class="benefit-card__title" data-i18n="benefit_2_title">Premium produkty</h3>
+            <p class="benefit-card__text" data-i18n="benefit_2_text">Wyłącznie sprawdzone, luksusowe marki.</p>
+          </article>
+          <article class="benefit-card">
+            <div class="benefit-card__icon" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <h3 class="benefit-card__title" data-i18n="benefit_3_title">Rezerwacja online 24/7</h3>
+            <p class="benefit-card__text" data-i18n="benefit_3_text">Wygodna rezerwacja o każdej porze dnia i nocy.</p>
+          </article>
+          <article class="benefit-card">
+            <div class="benefit-card__icon" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            </div>
+            <h3 class="benefit-card__title" data-i18n="benefit_4_title">500+ zadowolonych klientów</h3>
+            <p class="benefit-card__text" data-i18n="benefit_4_text">Zaufanie budowane przez lata w Łodzi.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SERVICES
+    ============================================================ -->
+    <section id="services" class="services section" aria-labelledby="services-heading">
+      <div class="container">
+        <header class="section__header">
+          <p class="section__eyebrow" data-i18n="services_eyebrow">Co oferujemy</p>
+          <h2 id="services-heading" class="section__title" data-i18n="services_title">Nasze usługi</h2>
+          <p class="section__subtitle" data-i18n="services_subtitle">Każda wizyta to wyjątkowe doświadczenie.</p>
+        </header>
+        <div class="services__filters" role="group" aria-label="Filtruj usługi">
+          <button class="filter-btn is-active" data-filter="all"   data-i18n="filter_all">Wszystkie</button>
+          <button class="filter-btn" data-filter="beard" data-i18n="filter_beard">Broda</button>
+          <button class="filter-btn" data-filter="hair"  data-i18n="filter_hair">Włosy</button>
+          <button class="filter-btn" data-filter="combo" data-i18n="filter_combo">Combo</button>
+        </div>
+        <div class="services__grid" id="services-grid">
+          <article class="service-card" data-category="hair" data-delay="0">
+            <div class="service-card__top"><span class="service-card__tag" data-i18n="filter_hair">Włosy</span><span class="service-card__duration">45 min</span></div>
+            <h3 class="service-card__name" data-i18n="service_1_name">Strzyżenie klasyczne</h3>
+            <p class="service-card__desc" data-i18n="service_1_desc">Precyzyjne strzyżenie dopasowane do kształtu twarzy i stylu życia.</p>
+            <div class="service-card__bottom"><span class="service-card__price">80 <abbr title="złotych">zł</abbr></span><button class="btn btn--gold btn--sm" data-booking-open data-service="s1" data-i18n="service_book">Zarezerwuj</button></div>
+          </article>
+          <article class="service-card" data-category="beard" data-delay="100">
+            <div class="service-card__top"><span class="service-card__tag" data-i18n="filter_beard">Broda</span><span class="service-card__duration">30 min</span></div>
+            <h3 class="service-card__name" data-i18n="service_2_name">Stylizacja brody</h3>
+            <p class="service-card__desc" data-i18n="service_2_desc">Kształtowanie i pielęgnacja brody na najwyższym poziomie.</p>
+            <div class="service-card__bottom"><span class="service-card__price">60 <abbr title="złotych">zł</abbr></span><button class="btn btn--gold btn--sm" data-booking-open data-service="s2" data-i18n="service_book">Zarezerwuj</button></div>
+          </article>
+          <article class="service-card service-card--featured" data-category="combo" data-delay="200">
+            <div class="service-card__badge" data-i18n="service_popular">Najpopularniejszy</div>
+            <div class="service-card__top"><span class="service-card__tag" data-i18n="filter_combo">Combo</span><span class="service-card__duration">75 min</span></div>
+            <h3 class="service-card__name" data-i18n="service_3_name">Strzyżenie + Broda</h3>
+            <p class="service-card__desc" data-i18n="service_3_desc">Kompleksowa pielęgnacja włosów i brody w jednej wizycie.</p>
+            <div class="service-card__bottom"><span class="service-card__price">130 <abbr title="złotych">zł</abbr></span><button class="btn btn--gold btn--sm" data-booking-open data-service="s3" data-i18n="service_book">Zarezerwuj</button></div>
+          </article>
+          <article class="service-card" data-category="beard" data-delay="300">
+            <div class="service-card__top"><span class="service-card__tag" data-i18n="filter_beard">Broda</span><span class="service-card__duration">45 min</span></div>
+            <h3 class="service-card__name" data-i18n="service_4_name">Golenie brzytwą</h3>
+            <p class="service-card__desc" data-i18n="service_4_desc">Tradycyjne golenie na gorący ręcznik z użyciem brzywy.</p>
+            <div class="service-card__bottom"><span class="service-card__price">90 <abbr title="złotych">zł</abbr></span><button class="btn btn--gold btn--sm" data-booking-open data-service="s4" data-i18n="service_book">Zarezerwuj</button></div>
+          </article>
+          <article class="service-card" data-category="hair" data-delay="400">
+            <div class="service-card__top"><span class="service-card__tag" data-i18n="filter_hair">Włosy</span><span class="service-card__duration">30 min</span></div>
+            <h3 class="service-card__name" data-i18n="service_5_name">Strzyżenie maszynką</h3>
+            <p class="service-card__desc" data-i18n="service_5_desc">Szybkie i precyzyjne strzyżenie maszynką z wykończeniem.</p>
+            <div class="service-card__bottom"><span class="service-card__price">60 <abbr title="złotych">zł</abbr></span><button class="btn btn--gold btn--sm" data-booking-open data-service="s5" data-i18n="service_book">Zarezerwuj</button></div>
+          </article>
+          <article class="service-card" data-category="combo" data-delay="500">
+            <div class="service-card__top"><span class="service-card__tag" data-i18n="filter_combo">Combo</span><span class="service-card__duration">90 min</span></div>
+            <h3 class="service-card__name" data-i18n="service_6_name">Full Package</h3>
+            <p class="service-card__desc" data-i18n="service_6_desc">Strzyżenie, broda, golenie i pielęgnacja — luksusowy pakiet.</p>
+            <div class="service-card__bottom"><span class="service-card__price">180 <abbr title="złotych">zł</abbr></span><button class="btn btn--gold btn--sm" data-booking-open data-service="s6" data-i18n="service_book">Zarezerwuj</button></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         ABOUT
+    ============================================================ -->
+    <section id="about" class="about section" aria-labelledby="about-heading">
+      <div class="container">
+        <div class="about__layout">
+          <div class="about__media">
+            <div class="about__img-wrap">
+              <!-- Replace with actual team photo -->
+              <img src="assets/images/team/barber-main.jpg"
+                   alt="Mirowski — Master Barber, 10+ lat doświadczenia"
+                   class="about__img" loading="lazy" width="540" height="680"
+                   onerror="this.style.background='#161616'">
+              <div class="about__img-badge">
+                <span class="about__badge-num">10+</span>
+                <span class="about__badge-lbl" data-i18n="about_badge">lat doświadczenia</span>
+              </div>
+            </div>
+          </div>
+          <div class="about__body">
+            <p class="section__eyebrow" data-i18n="about_eyebrow">Nasza historia</p>
+            <h2 id="about-heading" class="section__title" data-i18n="about_title">Rzemiosło<br>to nasz styl życia</h2>
+            <p class="about__text" data-i18n="about_p1">MIROWSKI BARBERSHOP to miejsce, gdzie tradycja spotyka nowoczesny styl. Każda wizyta to rytuał — od pierwszego cięcia po ostatni szlif brzytwą.</p>
+            <p class="about__text" data-i18n="about_p2">Znajdziesz nas w sercu Łodzi. Nasz zespół to pasjonaci, dla których każdy klient zasługuje na wyjątkową uwagę i najwyższy poziom obsługi.</p>
+            <div class="about__stats">
+              <div class="stat"><span class="stat__num" data-count="10" data-suffix="+">0+</span><span class="stat__lbl" data-i18n="stat_years">Lat doświadczenia</span></div>
+              <div class="stat"><span class="stat__num" data-count="500" data-suffix="+">0+</span><span class="stat__lbl" data-i18n="stat_clients">Klientów miesięcznie</span></div>
+              <div class="stat"><span class="stat__num" data-count="5" data-suffix="★">0★</span><span class="stat__lbl" data-i18n="stat_rating">Ocena Google</span></div>
+            </div>
+            <a href="#services" class="btn btn--gold magnetic" data-i18n="about_cta">Poznaj nasze usługi</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         GALLERY
+    ============================================================ -->
+    <section id="gallery" class="gallery section" aria-labelledby="gallery-heading">
+      <div class="container">
+        <header class="section__header">
+          <p class="section__eyebrow" data-i18n="gallery_eyebrow">Nasze prace</p>
+          <h2 id="gallery-heading" class="section__title" data-i18n="gallery_title">Galeria</h2>
+        </header>
+      </div>
+      <div class="gallery__grid" id="gallery-grid" role="list">
+        <!-- Replace src with actual gallery photos: 3:4 portrait, 1:1 square, 2:1 landscape -->
+        <figure class="gallery__item gallery__item--tall" data-index="0" role="listitem" tabindex="0">
+          <img src="assets/images/gallery/g1.jpg" alt="Classic Cut — strzyżenie klasyczne" loading="lazy" width="400" height="600">
+          <figcaption class="gallery__caption">Classic Cut</figcaption>
+          <div class="gallery__overlay" aria-hidden="true"><span>+</span></div>
+        </figure>
+        <figure class="gallery__item" data-index="1" role="listitem" tabindex="0">
+          <img src="assets/images/gallery/g2.jpg" alt="Beard Sculpt — stylizacja brody" loading="lazy" width="400" height="400">
+          <figcaption class="gallery__caption">Beard Sculpt</figcaption>
+          <div class="gallery__overlay" aria-hidden="true"><span>+</span></div>
+        </figure>
+        <figure class="gallery__item" data-index="2" role="listitem" tabindex="0">
+          <img src="assets/images/gallery/g3.jpg" alt="Skin Fade" loading="lazy" width="400" height="400">
+          <figcaption class="gallery__caption">Skin Fade</figcaption>
+          <div class="gallery__overlay" aria-hidden="true"><span>+</span></div>
+        </figure>
+        <figure class="gallery__item gallery__item--wide" data-index="3" role="listitem" tabindex="0">
+          <img src="assets/images/gallery/g4.jpg" alt="Wnętrze MIROWSKI BARBERSHOP — the space" loading="lazy" width="800" height="400">
+          <figcaption class="gallery__caption">The Space</figcaption>
+          <div class="gallery__overlay" aria-hidden="true"><span>+</span></div>
+        </figure>
+        <figure class="gallery__item" data-index="4" role="listitem" tabindex="0">
+          <img src="assets/images/gallery/g5.jpg" alt="Full Beard — pełna broda" loading="lazy" width="400" height="400">
+          <figcaption class="gallery__caption">The Full Beard</figcaption>
+          <div class="gallery__overlay" aria-hidden="true"><span>+</span></div>
+        </figure>
+        <figure class="gallery__item gallery__item--tall" data-index="5" role="listitem" tabindex="0">
+          <img src="assets/images/gallery/g6.jpg" alt="Textured Top — teksturowany top" loading="lazy" width="400" height="600">
+          <figcaption class="gallery__caption">Textured Top</figcaption>
+          <div class="gallery__overlay" aria-hidden="true"><span>+</span></div>
+        </figure>
+      </div>
+      <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Powiększone zdjęcie" aria-hidden="true">
+        <button class="lightbox__close" aria-label="Zamknij">&times;</button>
+        <button class="lightbox__prev" aria-label="Poprzednie">&#8592;</button>
+        <button class="lightbox__next" aria-label="Następne">&#8594;</button>
+        <div class="lightbox__stage">
+          <img class="lightbox__img" src="" alt="">
+          <p class="lightbox__caption"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         TESTIMONIALS
+    ============================================================ -->
+    <section id="testimonials" class="testimonials section" aria-labelledby="testimonials-heading">
+      <div class="container">
+        <header class="section__header">
+          <p class="section__eyebrow" data-i18n="reviews_eyebrow">Opinie klientów</p>
+          <h2 id="testimonials-heading" class="section__title" data-i18n="reviews_title">Co mówią o nas</h2>
+        </header>
+      </div>
+      <div class="testimonials__marquee" aria-label="Opinie — automatycznie przewijane">
+        <div class="testimonials__track" id="testimonials-track">
+          <article class="review-card">
+            <div class="review-card__stars" aria-label="5 na 5 gwiazdek">★★★★★</div>
+            <blockquote class="review-card__text" data-i18n="review_1">"Najlepszy barbershop w Łodzi. Zawsze wychodzę zadowolony!"</blockquote>
+            <footer class="review-card__author">
+              <img src="assets/images/reviews/r1.jpg" alt="" class="review-card__avatar" loading="lazy" width="44" height="44" aria-hidden="true">
+              <cite class="review-card__name">Marek W.</cite>
+            </footer>
+          </article>
+          <article class="review-card">
+            <div class="review-card__stars" aria-label="5 na 5 gwiazdek">★★★★★</div>
+            <blockquote class="review-card__text" data-i18n="review_2">"Profesjonalizm na najwyższym poziomie. Polecam każdemu!"</blockquote>
+            <footer class="review-card__author">
+              <img src="assets/images/reviews/r2.jpg" alt="" class="review-card__avatar" loading="lazy" width="44" height="44" aria-hidden="true">
+              <cite class="review-card__name">Tomasz K.</cite>
+            </footer>
+          </article>
+          <article class="review-card">
+            <div class="review-card__stars" aria-label="5 na 5 gwiazdek">★★★★★</div>
+            <blockquote class="review-card__text" data-i18n="review_3">"Świetna atmosfera i mistrzowskie strzyżenie. Wracam co miesiąc."</blockquote>
+            <footer class="review-card__author">
+              <img src="assets/images/reviews/r3.jpg" alt="" class="review-card__avatar" loading="lazy" width="44" height="44" aria-hidden="true">
+              <cite class="review-card__name">Piotr R.</cite>
+            </footer>
+          </article>
+          <article class="review-card">
+            <div class="review-card__stars" aria-label="5 na 5 gwiazdek">★★★★★</div>
+            <blockquote class="review-card__text" data-i18n="review_4">"Рекомендую! Найкраща перукарня в місті. Чудові результати."</blockquote>
+            <footer class="review-card__author">
+              <img src="assets/images/reviews/r4.jpg" alt="" class="review-card__avatar" loading="lazy" width="44" height="44" aria-hidden="true">
+              <cite class="review-card__name">Oleksii M.</cite>
+            </footer>
+          </article>
+          <article class="review-card">
+            <div class="review-card__stars" aria-label="5 stars">★★★★★</div>
+            <blockquote class="review-card__text" data-i18n="review_5">"Exceptional service. Worth every złoty. Best barbers in Lodz."</blockquote>
+            <footer class="review-card__author">
+              <img src="assets/images/reviews/r5.jpg" alt="" class="review-card__avatar" loading="lazy" width="44" height="44" aria-hidden="true">
+              <cite class="review-card__name">James B.</cite>
+            </footer>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         CONTACT
+    ============================================================ -->
+    <section id="contact" class="contact section" aria-labelledby="contact-heading">
+      <div class="container">
+        <header class="section__header">
+          <p class="section__eyebrow" data-i18n="contact_eyebrow">Znajdź nas</p>
+          <h2 id="contact-heading" class="section__title" data-i18n="contact_title">Kontakt</h2>
+        </header>
+        <div class="contact__layout">
+          <div class="contact__info">
+            <ul class="contact__list" role="list">
+              <li class="contact__item">
+                <svg class="contact__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <div><strong data-i18n="contact_addr_label">Adres</strong><address class="contact__address" data-i18n="contact_addr">ul. Piotrkowska, 90-001 Łódź</address></div>
+              </li>
+              <li class="contact__item">
+                <svg class="contact__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 014.1 12.5a19.79 19.79 0 01-3.07-8.67A2 2 0 013 1.84h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0121.15 17z"/></svg>
+                <div><strong data-i18n="contact_phone_label">Telefon</strong><a href="tel:+48796000534" class="contact__link">+48 796 000 534</a></div>
+              </li>
+              <li class="contact__item">
+                <svg class="contact__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                <div><strong>Instagram</strong><a href="https://instagram.com/mirowskiy7" target="_blank" rel="noopener noreferrer" class="contact__link">@mirowskiy7</a></div>
+              </li>
+              <li class="contact__item">
+                <svg class="contact__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <div>
+                  <strong data-i18n="contact_hours_label">Godziny otwarcia</strong>
+                  <span data-i18n="contact_hours_week">Pon–Pt: 9:00–20:00</span>
+                  <span data-i18n="contact_hours_sat">Sob: 9:00–17:00</span>
+                </div>
+              </li>
+            </ul>
+            <div class="contact__actions">
+              <a href="tel:+48796000534" class="btn btn--gold magnetic" data-i18n="contact_cta_call">Zadzwoń teraz</a>
+              <a href="https://wa.me/48796000534" target="_blank" rel="noopener noreferrer" class="btn btn--ghost magnetic" data-i18n="contact_cta_wa">WhatsApp</a>
+            </div>
+          </div>
+          <div class="contact__map">
+            <iframe title="MIROWSKI BARBERSHOP — mapa dojazdu"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d160156!2d19.455983!3d51.759248!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x471a34b5b0c97783%3A0xb37bba0d4fe93a68!2sLodz%2C%20Poland!5e0!3m2!1spl!2spl"
+              width="100%" height="420" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <a href="#hero" class="footer__logo" aria-label="MIROWSKI BARBERSHOP — powrót na górę">
+            <span class="footer__logo-name">MIROWSKI</span>
+            <span class="footer__logo-sub">BARBERSHOP</span>
+          </a>
+          <p class="footer__slogan" data-i18n="hero_slogan">Twoja broda w najlepszych rękach.</p>
+        </div>
+        <nav class="footer__nav" aria-label="Nawigacja stopki">
+          <p class="footer__nav-title" data-i18n="footer_nav_title">Nawigacja</p>
+          <ul role="list">
+            <li><a href="#about" data-i18n="nav_about">O nas</a></li>
+            <li><a href="#services" data-i18n="nav_services">Usługi</a></li>
+            <li><a href="#gallery" data-i18n="nav_gallery">Galeria</a></li>
+            <li><a href="#testimonials" data-i18n="nav_reviews">Opinie</a></li>
+            <li><a href="#contact" data-i18n="nav_contact">Kontakt</a></li>
+          </ul>
+        </nav>
+        <div class="footer__social">
+          <p class="footer__nav-title" data-i18n="footer_social_title">Śledź nas</p>
+          <div class="footer__social-links">
+            <a href="https://instagram.com/mirowskiy7" target="_blank" rel="noopener noreferrer" class="footer__social-link" aria-label="Instagram @mirowskiy7">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+            <a href="tel:+48796000534" class="footer__social-link" aria-label="Telefon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 014.1 12.5 19.79 19.79 0 011.03 3.83 2 2 0 013 1.84h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L7.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0121.15 17z"/></svg>
+            </a>
+            <a href="https://wa.me/48796000534" target="_blank" rel="noopener noreferrer" class="footer__social-link" aria-label="WhatsApp">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p class="footer__copy">&copy; <span id="footer-year">2025</span> MIROWSKI BARBERSHOP. <span data-i18n="footer_rights">Wszelkie prawa zastrzeżone.</span></p>
+        <a href="admin.html" class="footer__admin-link" tabindex="-1" aria-hidden="true">&#x2022;</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       BOOKING MODAL
+  ============================================================ -->
+  <div id="booking-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="booking-modal-title" aria-hidden="true">
+    <div class="modal__backdrop" data-booking-close></div>
+    <div class="modal__panel" role="document">
+      <header class="modal__header">
+        <div class="modal__brand">
+          <span class="modal__brand-name">MIROWSKI</span>
+          <span class="modal__brand-sub">BARBERSHOP</span>
+        </div>
+        <button class="modal__close" data-booking-close aria-label="Zamknij modal">&times;</button>
+      </header>
+      <div class="modal__progress" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="4">
+        <div class="progress__bar"><div class="progress__fill" id="progress-fill" style="width:25%"></div></div>
+        <div class="progress__steps" aria-hidden="true">
+          <span class="progress__step is-active" data-step="1" data-i18n="step_service">Usługa</span>
+          <span class="progress__step" data-step="2" data-i18n="step_barber">Barber</span>
+          <span class="progress__step" data-step="3" data-i18n="step_date">Termin</span>
+          <span class="progress__step" data-step="4" data-i18n="step_details">Dane</span>
+        </div>
+      </div>
+      <h2 id="booking-modal-title" class="modal__title" data-i18n="step1_title">Wybierz usługę</h2>
+      <div class="modal__step" id="step-1" data-step="1">
+        <div class="step__grid" id="modal-services" aria-live="polite"><div class="step__loading">Ładowanie...</div></div>
+      </div>
+      <div class="modal__step is-hidden" id="step-2" data-step="2">
+        <div class="step__grid step__grid--barbers" id="modal-barbers" aria-live="polite"><div class="step__loading">Ładowanie...</div></div>
+      </div>
+      <div class="modal__step is-hidden" id="step-3" data-step="3">
+        <div class="booking-calendar" id="booking-calendar">
+          <div class="calendar__header">
+            <button class="calendar__arrow" id="cal-prev" aria-label="Poprzedni miesiąc">&#8592;</button>
+            <h3 class="calendar__month" id="cal-month"></h3>
+            <button class="calendar__arrow" id="cal-next" aria-label="Następny miesiąc">&#8594;</button>
+          </div>
+          <div class="calendar__weekdays" aria-hidden="true"><span>Pn</span><span>Wt</span><span>Śr</span><span>Cz</span><span>Pt</span><span>Sb</span><span>Nd</span></div>
+          <div class="calendar__days" id="cal-days" role="grid" aria-label="Wybierz datę"></div>
+        </div>
+        <div class="timeslots" id="timeslots">
+          <p class="timeslots__prompt" id="timeslots-prompt" data-i18n="select_date_prompt">Wybierz datę, aby zobaczyć dostępne godziny.</p>
+          <div class="timeslots__grid" id="timeslots-grid" aria-live="polite"></div>
+        </div>
+      </div>
+      <div class="modal__step is-hidden" id="step-4" data-step="4">
+        <div class="booking-summary" id="booking-summary" aria-live="polite"></div>
+        <form class="booking-form" id="booking-form" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="f-name" data-i18n="form_name">Imię i nazwisko *</label>
+            <input class="form-input" type="text" id="f-name" autocomplete="name" required aria-required="true" placeholder="Jan Kowalski">
+            <span class="form-error" id="err-name" role="alert"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="f-phone" data-i18n="form_phone">Telefon *</label>
+            <input class="form-input" type="tel" id="f-phone" autocomplete="tel" required aria-required="true" placeholder="+48 000 000 000">
+            <span class="form-error" id="err-phone" role="alert"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="f-email">E-mail <span data-i18n="form_optional">(opcjonalnie)</span></label>
+            <input class="form-input" type="email" id="f-email" autocomplete="email" placeholder="jan@example.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="f-notes">Uwagi <span data-i18n="form_optional">(opcjonalnie)</span></label>
+            <textarea class="form-input form-textarea" id="f-notes" rows="3" placeholder="Dodatkowe informacje..."></textarea>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" id="f-terms" required aria-required="true" class="form-checkbox">
+            <label for="f-terms" class="form-check-label" data-i18n="form_terms">Akceptuję regulamin i politykę prywatności.</label>
+            <span class="form-error" id="err-terms" role="alert"></span>
+          </div>
+        </form>
+      </div>
+      <div class="modal__step is-hidden" id="step-success">
+        <div class="booking-result booking-result--success">
+          <div class="booking-result__icon" aria-hidden="true">✓</div>
+          <h3 data-i18n="success_title">Rezerwacja potwierdzona!</h3>
+          <p data-i18n="success_text">Potwierdzenie zostało wysłane na Twój numer telefonu.</p>
+          <p class="booking-result__code" id="booking-code"></p>
+          <button class="btn btn--gold" data-booking-close data-i18n="success_close">Zamknij</button>
+        </div>
+      </div>
+      <div class="modal__step is-hidden" id="step-error">
+        <div class="booking-result booking-result--error">
+          <div class="booking-result__icon" aria-hidden="true">!</div>
+          <h3 data-i18n="error_title">Coś poszło nie tak</h3>
+          <p data-i18n="error_text">Spróbuj ponownie lub zadzwoń do nas bezpośrednio.</p>
+          <a href="tel:+48796000534" class="btn btn--gold">+48 796 000 534</a>
+        </div>
+      </div>
+      <footer class="modal__footer">
+        <button class="btn btn--ghost" id="modal-back" data-i18n="btn_back">Wstecz</button>
+        <button class="btn btn--gold"  id="modal-next" data-i18n="btn_next">Dalej</button>
+        <button class="btn btn--gold is-hidden" id="modal-submit" type="submit" form="booking-form">
+          <span class="btn__label" data-i18n="btn_confirm">Potwierdź rezerwację</span>
+          <span class="btn__spinner" aria-hidden="true"></span>
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Single merged script -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="app.js" defer></script>
+
+</body>
+</html>

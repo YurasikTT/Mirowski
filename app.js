@@ -801,7 +801,6 @@ const BookingModule = (() => {
     modal.removeAttribute('aria-hidden');
     document.body.classList.add('modal-open');
     if (window.lenis) window.lenis.stop();
-    if (typeof gsap !== 'undefined') gsap.globalTimeline.pause(); /* stop gallery GSAP — prevents backdrop-filter repaints */
     /* Lenis intercepts wheel events even when stopped — capture them first
        and manually scroll the active step so the modal scrolls normally */
     _modalWheelBlock = (e) => {
@@ -830,7 +829,6 @@ const BookingModule = (() => {
       window.removeEventListener('wheel', _modalWheelBlock, { capture: true });
       _modalWheelBlock = null;
     }
-    if (typeof gsap !== 'undefined') gsap.globalTimeline.resume();
     if (window.lenis) window.lenis.start();
   }
 

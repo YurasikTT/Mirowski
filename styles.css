@@ -671,14 +671,8 @@ p  { max-width: 65ch; }
 .modal__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,.78);
+  background: rgba(0,0,0,.86);
   cursor: pointer;
-  transform: translateZ(0); /* force GPU composite layer */
-}
-/* Blur activates AFTER modal opens (avoids FPS drop during animation) */
-.modal.is-open .modal__backdrop {
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
 }
 
 .modal__panel {

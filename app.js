@@ -755,6 +755,8 @@ const BookingModule = (() => {
   };
 
   let _savedScrollY = 0;
+  let _modalWheelBlock = null;
+  let _submitting = false;
 
   function openModal() {
     if (!modal) return;
@@ -768,6 +770,18 @@ const BookingModule = (() => {
     modal.removeAttribute('aria-hidden');
     document.body.classList.add('modal-open');
     if (window.lenis) window.lenis.stop();
+    /* Lenis intercepts wheel events even when stopped — capture them first
+       and manually scroll the active step so the modal scrolls normally */
+    _modalWheelBlock = (e) => {
+      if (!modal.classList.contains('is-open') || !modal.contains(e.target)) return;
+      e.stopImmediatePropagation();
+      let el = e.target;
+      while (el && el !== modal.parentElement) {
+        if (el.scrollHeight > el.clientHeight + 1) { el.scrollTop += e.deltaY; return; }
+        el = el.parentElement;
+      }
+    };
+    window.addEventListener('wheel', _modalWheelBlock, { capture: true, passive: true });
     showStep(1);
   }
 
@@ -780,6 +794,10 @@ const BookingModule = (() => {
     document.body.style.top   = '';
     document.body.style.width = '';
     window.scrollTo({ top: _savedScrollY, behavior: 'instant' });
+    if (_modalWheelBlock) {
+      window.removeEventListener('wheel', _modalWheelBlock, { capture: true });
+      _modalWheelBlock = null;
+    }
     if (window.lenis) window.lenis.start();
   }
 
@@ -944,19 +962,27 @@ const BookingModule = (() => {
       if (!pr) { phone?.classList.add('is-error'); ok=false; }
       else { phone?.classList.remove('is-error'); State.set('clientPhone', pv); }
 
-      setErr('err-terms', !terms?.checked ? 'Zaakceptuj regulamin.' : '');
-      if (!terms?.checked) ok=false;
+      const termsOk = terms?.checked;
+      setErr('err-terms', !termsOk ? 'Zaakceptuj regulamin.' : '');
+      if (!termsOk) ok = false;
 
       State.set('clientEmail', document.getElementById('f-email')?.value.trim()||'');
       State.set('notes',       document.getElementById('f-notes')?.value.trim()||'');
-      if (!ok) { shake(); return false; }
+      if (!ok) {
+        const msg = (!nv||nv.length<2) ? 'Wprowadź imię i nazwisko.'
+                  : !pr                ? 'Podaj prawidłowy numer telefonu.'
+                  :                      'Zaakceptuj regulamin i politykę prywatności.';
+        return shake(msg);
+      }
     }
     return true;
   }
 
   /* — Submit — */
   async function submit() {
-    if (!validate()) return;
+    if (_submitting || !validate()) return;
+    _submitting = true;
+
     const svc  = State.get('service');
     const bar  = State.get('barber');
     const lang = State.get('lang') || 'pl';
@@ -964,6 +990,15 @@ const BookingModule = (() => {
     if (btnSubmit) { btnSubmit.classList.add('is-loading'); btnSubmit.disabled=true; }
 
     try {
+      /* Re-check slot availability right before booking to prevent duplicates */
+      const taken = await SheetsAPI.getSlots(State.get('date'), bar?.id || null);
+      if (taken.includes(State.get('time'))) {
+        shake('Ten termin jest już zajęty. Wybierz inny czas.');
+        State.set('time', null);
+        showStep(3, 'back');
+        return;
+      }
+
       const res = await SheetsAPI.createBooking({
         serviceId:   svc?.id,
         serviceName: localize(svc?.name, lang),
@@ -985,6 +1020,7 @@ const BookingModule = (() => {
     } catch {
       showResult('error');
     } finally {
+      _submitting = false;
       if (btnSubmit) { btnSubmit.classList.remove('is-loading'); btnSubmit.disabled=false; }
     }
   }
